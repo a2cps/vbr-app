@@ -1,0 +1,5 @@
+email-validator
+fastapi
+uvicorn[standard]
+tapipy>=1.0.2
+git+https://github.com/a2cps/python-vbr.git@main#egg=python_vbr

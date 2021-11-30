@@ -8,8 +8,8 @@ from .single import *
 
 
 class Container(BaseModel):
-    container_id: int
-    local_id: str
+    _container_id: int
+    container_id: str
     tracking_id: str
     container_type: ContainerType
     location: Location
@@ -17,8 +17,8 @@ class Container(BaseModel):
 
 
 class DataEvent(BaseModel):
-    data_event_id: int
-    local_id: str
+    _data_event_id: int
+    data_event_id: str
     comment: Optional[str]
     event_ts: Optional[str]
     rank: Optional[int]
@@ -27,8 +27,8 @@ class DataEvent(BaseModel):
 
 
 class Biosample(BaseModel):
-    biosample_id: int
-    local_id: str
+    _biosample_id: int
+    biosample_id: str
     creation_time: str
     tracking_id: Optional[str]
     protocol: Protocol
@@ -37,8 +37,8 @@ class Biosample(BaseModel):
 
 
 class Measurement(BaseModel):
-    measurement_id: int
-    local_id: str
+    _measurement_id: int
+    measurement_id: str
     tracking_id: Optional[str]
     creation_time: str
     biosample: Biosample
@@ -50,8 +50,8 @@ class Measurement(BaseModel):
 
 
 class Shipment(BaseModel):
-    shipment_id: int
-    local_id: str
+    _shipment_id: int
+    shipment_id: str
     tracking_id: str
     name: Optional[str]
     sender_name: Optional[str]
@@ -62,8 +62,8 @@ class Shipment(BaseModel):
 
 
 class Subject(BaseModel):
-    subject_id: int
-    local_id: str
+    _subject_id: int
+    subject_id: str
     tracking_id: UUID
     creation_time: str
     project: Project

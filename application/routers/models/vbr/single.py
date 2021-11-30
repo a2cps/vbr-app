@@ -7,16 +7,16 @@ from .primitives import *
 
 
 class Container(BaseModel):
-    container_id: int
-    local_id: str
+    _container_id: int
+    container_id: str
     tracking_id: str
     location: int
     container_type: ContainerType
 
 
 class Location(BaseModel):
-    location_id: int
-    local_id: str
+    _location_id: int
+    location_id: str
     display_name: str
     address1: Optional[str]
     address2: Optional[str]
@@ -28,8 +28,8 @@ class Location(BaseModel):
 
 
 class Subject(BaseModel):
-    subject_id: int
-    local_id: str
+    _subject_id: int
+    subject_id: str
     creation_time: str
     tracking_id: UUID
     project: Project

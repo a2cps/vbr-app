@@ -1,9 +1,10 @@
 """VBR Units"""
-from vbr.api import VBR_Api
 from fastapi import APIRouter, Body, Depends, HTTPException
+from vbr.api import VBR_Api
+
 from ..dependencies import *
-from .models import Organization
 from .builders import build_organization
+from .models import Organization
 
 router = APIRouter(
     prefix="/organizations",
@@ -13,7 +14,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/{name}",
+    "/name/{name}",
     dependencies=[Depends(role_vbr_read)],
     response_model=Organization,
 )
@@ -23,3 +24,6 @@ def organization(
 ):
     loc = client.get_organization_by_name(name)
     return build_organization(loc, client)
+
+
+# TODO - add support for /{local_id} when it is live in the database and Python API

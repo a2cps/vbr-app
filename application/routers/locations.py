@@ -1,10 +1,11 @@
 """VBR Units"""
+from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 from vbr.tableclasses import Location as LocationRow
-from fastapi import APIRouter, Body, Depends, HTTPException
+
 from ..dependencies import *
-from .models import Location, CreateLocation
 from .builders import build_location
+from .models import CreateLocation, Location
 
 router = APIRouter(
     prefix="/locations",

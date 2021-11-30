@@ -1,9 +1,10 @@
 """VBR Units"""
-from vbr.api import VBR_Api
 from fastapi import APIRouter, Body, Depends, HTTPException
+from vbr.api import VBR_Api
+
 from ..dependencies import *
-from .models import Biosample
 from .builders import build_biosample
+from .models import Biosample
 
 router = APIRouter(
     prefix="/biosamples",

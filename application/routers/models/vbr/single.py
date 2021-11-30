@@ -1,7 +1,8 @@
 from enum import Enum
-from typing import List, Optional, Literal
-from pydantic import BaseModel, Field
+from typing import List, Literal, Optional
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 from .primitives import *
 

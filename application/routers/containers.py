@@ -1,12 +1,13 @@
 """VBR Units"""
+from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 from vbr.tableclasses import Container as ContainerRow
-from fastapi import APIRouter, Body, Depends, HTTPException
 
 from application.routers.models.actions import location
+
 from ..dependencies import *
-from .models import Container, ContainerTable, CreateContainer
 from .builders import build_container
+from .models import Container, ContainerTable, CreateContainer
 from .models.tables import build_container_table
 
 router = APIRouter(
@@ -38,8 +39,8 @@ def create_container(
     data = body.dict()
     # Lookup local_ids and transform into _pkids
     # TODO - consider making this an vbr.api
-    parent_local_id = data.pop("parent_container_local_id", None)
-    location_local_id = data.pop("location_local_id", None)
+    parent_local_id = data.pop("parent_container_id", None)
+    location_local_id = data.pop("location_id", None)
     if parent_local_id is not None:
         data["parent_id"] = client.get_container_by_local_id(
             parent_local_id

@@ -1,11 +1,12 @@
-from typing import Union
-from attrdict import AttrDict
 from functools import lru_cache
+from typing import Union
+
+from attrdict import AttrDict
+from vbr.api import VBR_Api
 from vbr.hashable import picklecache
 from vbr.tableclasses import Table
-from vbr.api import VBR_Api
-from .redcap import build_demographics_for_subject
 
+from .redcap import build_demographics_for_subject
 
 # TODO - make each builder accept either Table instance or entity.
 IdentOrRow = Union[Table, int]

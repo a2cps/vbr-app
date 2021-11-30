@@ -1,4 +1,5 @@
 from typing import List, Optional, Union
+
 from pydantic import BaseModel
 from vbr.api import VBR_Api
 from vbr.tableclasses.system import VbrRedcapEvent

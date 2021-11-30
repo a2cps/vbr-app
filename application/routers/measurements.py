@@ -1,12 +1,17 @@
 """VBR Units"""
-from vbr.api import VBR_Api
 from fastapi import APIRouter, Body, Depends, HTTPException
+from vbr.api import VBR_Api
 
 from application.routers.models.actions import comment, measurement
+
 from ..dependencies import *
-from .models import Measurement, MeasurementTable, BulkChangeMeasurementContainer
-from .models import build_measurement_table
 from .builders import build_measurement
+from .models import (
+    BulkChangeMeasurementContainer,
+    Measurement,
+    MeasurementTable,
+    build_measurement_table,
+)
 
 router = APIRouter(
     prefix="/measurements",
@@ -66,10 +71,10 @@ def bulk_update_measurements_container(
     client: VBR_Api = Depends(vbr_admin_client),
 ):
     """Update Container for multiple Measurements at once."""
-    container = client.get_container_by_local_id(body.local_id)
+    container = client.get_container_by_local_id(body.container_id)
     measurements = []
     response = []
-    for m1 in body.measurement_local_ids:
+    for m1 in body.measurement_ids:
         measurements.append(client.get_measurement_by_local_id(m1))
     for m2 in measurements:
         meas = client.relocate_measurement(m2, container, comment=body.comment)

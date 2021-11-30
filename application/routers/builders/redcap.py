@@ -1,8 +1,9 @@
-from attrdict import AttrDict
 from functools import lru_cache
+
+from attrdict import AttrDict
+from vbr.api import VBR_Api
 from vbr.hashable import picklecache
 from vbr.tableclasses import Table
-from vbr.api import VBR_Api
 
 MAPPINGS = {
     # Choices: 1, Male | 2, Female | 3, Unknown | 4, Intersex

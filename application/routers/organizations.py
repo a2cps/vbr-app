@@ -1,9 +1,10 @@
 """VBR Organizations"""
-from vbr.api import VBR_Api
 from fastapi import APIRouter, Body, Depends, HTTPException
+from vbr.api import VBR_Api
+
 from ..dependencies import *
-from .models import Organization
 from .builders import build_organization
+from .models import Organization
 
 router = APIRouter(
     prefix="/organizations",

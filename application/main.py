@@ -1,24 +1,25 @@
 from datetime import datetime
+
 from fastapi import FastAPI
+
 from .config import DevelopmentConfig as Config
 from .dependencies import *
-
 from .internal import admin
 from .routers import (
-    biosamples,
     biosample,
-    containers,
+    biosamples,
     container,
-    locations,
+    containers,
     location,
-    measurements,
+    locations,
     measurement,
-    organizations,
+    measurements,
     organization,
-    shipments,
+    organizations,
     shipment,
-    subjects,
+    shipments,
     subject,
+    subjects,
 )
 
 description = """

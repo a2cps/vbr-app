@@ -1,8 +1,9 @@
 from typing import List, Optional
+from uuid import UUID
+
 from pydantic import BaseModel
 from vbr.api import VBR_Api
 from vbr.utils.redcaptasks.time import redcap_to_datetime
-from uuid import UUID
 
 __all__ = [
     "BiosampleReport",

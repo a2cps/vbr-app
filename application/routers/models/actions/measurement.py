@@ -1,5 +1,7 @@
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from typing import Optional, List
+
 from ..vbr import Measurement
 
 
@@ -16,15 +18,15 @@ class PartitionedMeasurement(BaseModel):
 
 
 class ChangeMeasurementContainer(BaseModel):
-    local_id: str = Field(None, title="Container Local Id")
+    container_id: str = Field(None, title="Container Id")
     comment: Optional[str] = Field(None, title="Optional comment")
 
 
-class MeasurementLocalId(str):
+class MeasurementId(str):
     pass
 
 
 class BulkChangeMeasurementContainer(BaseModel):
-    local_id: str = Field(None, title="Container Local Id")
-    measurement_local_ids: List[MeasurementLocalId]
+    container_id: str = Field(None, title="Container Id")
+    measurement_ids: List[MeasurementId]
     comment: Optional[str] = Field(None, title="Optional comment")

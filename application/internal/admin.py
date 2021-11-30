@@ -1,8 +1,10 @@
 """Administrative routes"""
 from enum import Enum
-from pydantic import BaseModel, EmailStr
+
 from fastapi import APIRouter, Body, Depends, HTTPException
+from pydantic import BaseModel, EmailStr
 from tapipy.tapis import Tapis
+
 from ..config import DevelopmentConfig as Config
 from ..dependencies import *
 

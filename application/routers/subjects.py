@@ -1,10 +1,16 @@
 """VBR Units"""
-from vbr.api import VBR_Api
 from fastapi import APIRouter, Body, Depends, HTTPException
+from vbr.api import VBR_Api
+
 from ..dependencies import *
-from .models import Subject, SubjectTable, SubjectTableRestricted
-from .models import build_subject_table, build_subject_table_restricted
 from .builders import build_subject
+from .models import (
+    Subject,
+    SubjectTable,
+    SubjectTableRestricted,
+    build_subject_table,
+    build_subject_table_restricted,
+)
 
 router = APIRouter(
     prefix="/subjects",

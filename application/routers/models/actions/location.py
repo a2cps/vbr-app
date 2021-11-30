@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class LocationLocalId(BaseModel):
-    local_id: str = Field(None, title="Location Local Id")
+    location_id: str = Field(None, title="Location Id")
 
 
 class SetLocationLocalId(LocationLocalId):

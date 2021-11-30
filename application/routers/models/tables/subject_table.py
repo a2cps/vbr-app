@@ -1,8 +1,9 @@
-from attrdict import AttrDict
-from vbr.api import VBR_Api
 from enum import Enum
-from typing import List, Optional, Literal
+from typing import List, Literal, Optional
+
+from attrdict import AttrDict
 from pydantic import BaseModel, Field
+from vbr.api import VBR_Api
 
 
 class SubjectTable(BaseModel):

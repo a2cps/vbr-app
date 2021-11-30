@@ -1,9 +1,10 @@
 """VBR Units"""
-from vbr.api import VBR_Api
 from fastapi import APIRouter, Body, Depends, HTTPException
+from vbr.api import VBR_Api
+
 from ..dependencies import *
-from .models import Shipment, CreateShipment
 from .builders import build_shipment
+from .models import CreateShipment, Shipment
 
 router = APIRouter(
     prefix="/shipments",
@@ -35,8 +36,8 @@ def create_shipment(
     """Create a new Shipment."""
     data = body.dict()
     # TODO Validate proposed tracking ID before is created
-    ship_from_local_id = data.pop("ship_from_local_id", None)
-    ship_to_local_id = data.pop("ship_to_local_id", None)
+    ship_from_local_id = data.pop("ship_from_location_id", None)
+    ship_to_local_id = data.pop("ship_to_location_id", None)
     if ship_from_local_id is not None:
         data["ship_from_id"] = client.get_location_by_local_id(
             ship_from_local_id
@@ -52,7 +53,7 @@ def create_shipment(
     # TODO Create a Tracker with EasyPost API
     # Associate listed containers with shipment.
     # TODO: Errors out if a container is already associated with another shipment. Fix in API.
-    if isinstance(body.container_local_ids, list):
+    if isinstance(body.container_ids, list):
         for local_id in body.container_local_ids:
             container = client.get_container_by_local_id(local_id)
             client.associate_container_with_shipment(container, shipment)

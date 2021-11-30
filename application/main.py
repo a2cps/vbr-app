@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 from .config import DevelopmentConfig as Config
 from .dependencies import *
@@ -45,15 +46,40 @@ async def startup_event():
     app.state.STARTUP_TIME = datetime.now()
 
 
-@app.get("/status")
+class ApiStatus(BaseModel):
+    service: str
+    version: str
+    tenant: str
+    status: str
+    uptime: timedelta
+    message: str
+
+
+@app.get("/status", response_model=ApiStatus)
 async def status() -> dict:
-    """Provides a simple unauthenticated status check."""
+    """Provides an unauthenticated status check."""
     return {
         "service": app.title,
         "version": app.version,
         "tenant": Config.TAPIS_TENANT_ID,
         "status": "OK",
-        "uptime": str(datetime.now() - app.state.STARTUP_TIME),
+        "uptime": datetime.now() - app.state.STARTUP_TIME,
+        "message": "Status retrieved",
+    }
+
+
+@app.get(
+    "/status/auth", dependencies=[Depends(role_vbr_user)], response_model=ApiStatus
+)
+async def status_auth_check() -> dict:
+    """Provides an authenticated status check."""
+    return {
+        "service": app.title,
+        "version": app.version,
+        "tenant": Config.TAPIS_TENANT_ID,
+        "status": "OK",
+        "uptime": datetime.now() - app.state.STARTUP_TIME,
+        "message": "Authenication successful",
     }
 
 

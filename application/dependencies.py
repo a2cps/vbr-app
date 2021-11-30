@@ -5,6 +5,7 @@ import jwt
 import vbr
 from fastapi import Depends, Header, HTTPException
 from tapipy.tapis import Tapis
+from tapipy.errors import BaseTapyException
 
 from .config import DevelopmentConfig as Config
 
@@ -50,19 +51,34 @@ async def tapis_token(x_tapis_token: Optional[str] = Header(None)):
 
 def tapis_client(x_tapis_token: str = Depends(tapis_token)) -> Tapis:
     """Returns a user Tapis client for the provided token"""
-    client = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=x_tapis_token)
+    try:
+        client = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=x_tapis_token)
+    except BaseTapyException as exc:
+        raise HTTPException(
+            status_code=401, detail="Token was invalid: {0}".format(exc)
+        )
     return client
 
 
 def tapis_user(token: str = Depends(tapis_token)):
     """Get Tapis user profile for the provided token."""
-    t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+    try:
+        t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+    except BaseTapyException as exc:
+        raise HTTPException(
+            status_code=401, detail="Token was invalid: {0}".format(exc)
+        )
     return t.authenticator.get_userinfo().username
 
 
 def tapis_roles(user: str = Depends(tapis_user), token: str = Depends(tapis_token)):
     """Get Tapis SK roles for the provided user."""
-    t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+    try:
+        t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+    except BaseTapyException as exc:
+        raise HTTPException(
+            status_code=401, detail="Token was invalid: {0}".format(exc)
+        )
     return t.sk.getUserRoles(user=user, tenant=Config.TAPIS_TENANT_ID).names
 
 
@@ -83,6 +99,11 @@ def role_pgrest_admin(roles: List[str] = Depends(tapis_roles)):
 #   L_ VBR_READ_ANY
 # VBR_WRITE_PUBLIC
 #   L_ VBR_READ_PUBLIC
+
+
+def role_vbr_user(roles: List[str] = Depends(tapis_roles)):
+    if not "VBR_USER" in roles:
+        raise HTTPException(status_code=401)
 
 
 def role_vbr_admin(roles: List[str] = Depends(tapis_roles)):

@@ -5,8 +5,10 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 from tapipy.tapis import Tapis
 
-from ..config import DevelopmentConfig as Config
+from ..config import get_settings
 from ..dependencies import *
+
+settings = get_settings()
 
 router = APIRouter(
     prefix="/admin",
@@ -61,7 +63,7 @@ def build_user(username: str, client: Tapis) -> User:
 def list_users(client: Tapis = Depends(tapis_client)):
     """List authorized Users."""
     usernames = client.sk.getUsersWithRole(
-        tenant=Config.TAPIS_TENANT_ID, roleName="VBR_USER"
+        tenant=settings.tapis_tenant_id, roleName="VBR_USER"
     ).names
     users = [build_user(u, client) for u in usernames]
     return users
@@ -76,7 +78,9 @@ def add_user(body: AddUser = Body(...), client: Tapis = Depends(tapis_client)):
     """Add an authorized User."""
     try:
         client.sk.grantRole(
-            tenant=Config.TAPIS_TENANT_ID, user=body.username, roleName=body.role.value
+            tenant=settings.tapis_tenant_id,
+            user=body.username,
+            roleName=body.role.value,
         )
         return build_user(username=body.username, client=client)
     except Exception:
@@ -92,7 +96,7 @@ def get_user(username: str, client: Tapis = Depends(tapis_client)):
     """Get profile of an authorized User."""
     if (
         "VBR_USER"
-        in client.sk.getUserRoles(user=username, tenant=Config.TAPIS_TENANT_ID).names
+        in client.sk.getUserRoles(user=username, tenant=settings.tapis_tenant_id).names
     ):
         user_profile = build_user(username, client)
         return User(**user_profile)
@@ -110,7 +114,7 @@ def list_user_roles(username: str, client: Tapis = Depends(tapis_client)):
     roles = [
         r
         for r in client.sk.getUserRoles(
-            tenant=Config.TAPIS_TENANT_ID, user=username
+            tenant=settings.tapis_tenant_id, user=username
         ).names
         if "VBR" in r
     ]
@@ -129,13 +133,13 @@ def grant_user_role(
 ):
     """Grant a role to a User."""
     client.sk.grantRole(
-        tenant=Config.TAPIS_TENANT_ID, user=username, roleName=role.value
+        tenant=settings.tapis_tenant_id, user=username, roleName=role.value
     )
     # Return list of roles for user
     roles = [
         r
         for r in client.sk.getUserRoles(
-            tenant=Config.TAPIS_TENANT_ID, user=username
+            tenant=settings.tapis_tenant_id, user=username
         ).names
         if "VBR" in r
     ]
@@ -153,12 +157,12 @@ def revoke_user_role(username: str, role: Role, client: Tapis = Depends(tapis_cl
     Note that inherited roles (such as VBR_USER) cannot be revoked using this method.
     """
     client.sk.revokeUserRole(
-        tenant=Config.TAPIS_TENANT_ID, user=username, roleName=role.value
+        tenant=settings.tapis_tenant_id, user=username, roleName=role.value
     )
     roles = [
         r
         for r in client.sk.getUserRoles(
-            tenant=Config.TAPIS_TENANT_ID, user=username
+            tenant=settings.tapis_tenant_id, user=username
         ).names
         if "VBR" in r
     ]

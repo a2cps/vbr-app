@@ -1,33 +1,27 @@
-import os
+from functools import lru_cache
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+from pydantic import BaseSettings
 
-
-class Config(object):
-    DEBUG = False
-    CORS_ENABLED = True
-    PUBLIC_CNAME = os.environ.get("APP_PUBLIC_CNAME", "vbr.a2cps.tacc.cloud")
-    LOG_LEVEL = os.environ.get("APP_LOG_LEVEL", "INFO")
-    LOG_FILE = os.environ.get("APP_LOG_FILE", "/var/log/service.log")
-    OTP_KEY = os.environ.get("APP_OTP_KEY")
-    TAPIS_BASE_URL = "https://a2cps-dev.tapis.io"
-    TAPIS_TENANT_ID = os.environ.get("TAPIS3_TENANT_ID", "a2cps-dev")
-    TAPIS_CLIENT_KEY = os.environ.get("TAPIS3_CLIENT_KEY")
-    TAPIS_CLIENT_SECRET = os.environ.get("TAPIS3_CLIENT_SECRET")
-    TAPIS_CLIENT_SCOPE = os.environ.get("TAPIS3_CLIENT_SCOPE", "PRODUCTION")
-    TAPIS_SERVICE_UNAME = os.environ.get("TAPIS3_SERVICE_UNAME")
-    TAPIS_SERVICE_PASS = os.environ.get("TAPIS3_SERVICE_PASS")
-    SECRET_KEY = os.environ.get("APP_SECRET_KEY")
-    URL_SCHEME = "https"
+__all__ = ["Settings", "get_settings"]
 
 
-class ProductionConfig(Config):
-    DEBUG = False
-    LOG_LEVEL = "INFO"
+@lru_cache()
+def get_settings():
+    return Settings()
 
 
-class DevelopmentConfig(Config):
-    DEBUG = True
-    LOG_LEVEL = "DEBUG"
-    URL_SCHEME = "http"
-    PUBLIC_CNAME = "127.0.0.1"
+class Settings(BaseSettings):
+    tapis_base_url: str = "https://tacc.tapis.io"
+    tapis_tenant_id: str = "tacc"
+    tapis_client_scope: str = "PRODUCTION"
+    tapis_service_uname: str = "username"
+    tapis_service_pass: str = "p@assw0rd!"
+    app_secret_key: str = "A>=MW;ZDF;/;Nf5>fNWnBPv@"
+    app_otp_key: str = "Wx9H2K9fJzmnMKKquGca76ALdY8MaaMp"
+    app_public_cname: str = "localhost"
+    app_log_level: str = "DEBUG"
+    app_debug: bool = True
+    app_default_page_size: int = 50
+
+    class Config:
+        env_file = "env.rc"

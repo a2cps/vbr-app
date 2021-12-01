@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
-from .config import DevelopmentConfig as Config
+from .config import get_settings
 from .dependencies import *
 from .internal import admin
 from .routers import (
@@ -29,6 +29,8 @@ Virtual Biospecimen API helps manage Biospecimen logistics and processing.
 
 """
 
+settings = get_settings()
+
 app = FastAPI(
     title="  API",
     description=description,
@@ -38,7 +40,7 @@ app = FastAPI(
         "name": "A2CPS Open Source",
         "email": "a2cps@tacc.cloud",
     },
-    debug=Config.DEBUG,
+    debug=settings.app_debug,
 )
 
 
@@ -71,7 +73,7 @@ async def status() -> dict:
     return {
         "service": app.title,
         "version": app.version,
-        "tenant": Config.TAPIS_TENANT_ID,
+        "tenant": settings.tapis_tenant_id,
         "status": "OK",
         "uptime": datetime.now() - app.state.STARTUP_TIME,
         "message": "Status retrieved",
@@ -86,10 +88,10 @@ async def status_auth_check() -> dict:
     return {
         "service": app.title,
         "version": app.version,
-        "tenant": Config.TAPIS_TENANT_ID,
+        "tenant": settings.tapis_tenant_id,
         "status": "OK",
         "uptime": datetime.now() - app.state.STARTUP_TIME,
-        "message": "Authenication successful",
+        "message": "Authentication successful",
     }
 
 

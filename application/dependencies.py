@@ -1,34 +1,36 @@
-from functools import lru_cache
 import os
+from functools import lru_cache
 from typing import List, Optional
 
 import jwt
 import vbr
-from vbr.hashable import picklecache
 from fastapi import Depends, Header, HTTPException
-from tapipy.tapis import Tapis
 from tapipy.errors import BaseTapyException
+from tapipy.tapis import Tapis
+from vbr.hashable import picklecache
 
-from .config import DevelopmentConfig as Config
+from .config import get_settings
+
+settings = get_settings()
 
 
-async def limit_offset(offset: int = 0, limit: int = 20):
+async def limit_offset(offset: int = 0, limit: int = settings.app_default_page_size):
     """Provides limit and offset query parameters."""
     return {"offset": offset, "limit": limit}
 
 
 @picklecache.mcache(lru_cache(maxsize=32))
 def _client(token: str) -> Tapis:
-    return Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+    return Tapis(base_url=settings.tapis_base_url, access_token=token)
 
 
 # @picklecache.mcache(lru_cache(maxsize=32))
 def tapis_admin_client() -> Tapis:
     """Returns a service account Tapis client"""
     client = Tapis(
-        base_url=Config.TAPIS_BASE_URL,
-        username=Config.TAPIS_SERVICE_UNAME,
-        password=Config.TAPIS_SERVICE_PASS,
+        base_url=settings.tapis_base_url,
+        username=settings.tapis_service_uname,
+        password=settings.tapis_service_pass,
     )
     client.get_tokens()
     return client
@@ -61,7 +63,6 @@ def tapis_client(x_tapis_token: str = Depends(tapis_token)) -> Tapis:
     """Returns a user Tapis client for the provided token"""
     try:
         client = _client(x_tapis_token)
-    #        client = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=x_tapis_token)
     except BaseTapyException as exc:
         raise HTTPException(
             status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
@@ -73,7 +74,6 @@ def tapis_user(token: str = Depends(tapis_token)):
     """Get Tapis user profile for the provided token."""
     try:
         t = _client(token)
-    #        t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
     except BaseTapyException as exc:
         raise HTTPException(
             status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
@@ -85,12 +85,11 @@ def tapis_roles(user: str = Depends(tapis_user), token: str = Depends(tapis_toke
     """Get Tapis SK roles for the provided user."""
     try:
         t = _client(token)
-        # t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
     except BaseTapyException as exc:
         raise HTTPException(
             status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
         )
-    return t.sk.getUserRoles(user=user, tenant=Config.TAPIS_TENANT_ID).names
+    return t.sk.getUserRoles(user=user, tenant=settings.tapis_tenant_id).names
 
 
 def role_pgrest_admin(roles: List[str] = Depends(tapis_roles)):

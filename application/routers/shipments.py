@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 
+from ..utils import recognize_delivery_service
 from ..dependencies import *
 from .builders import build_shipment
 from .models import CreateShipment, Shipment
@@ -35,7 +36,11 @@ def create_shipment(
 ):
     """Create a new Shipment."""
     data = body.dict()
-    # TODO Validate proposed tracking ID before is created
+    tracking_id = body.tracking_id
+    try:
+        recognize_delivery_service(tracking_id)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Invalid tracking ID")
     ship_from_local_id = data.pop("ship_from_location_id", None)
     ship_to_local_id = data.pop("ship_to_location_id", None)
     if ship_from_local_id is not None:

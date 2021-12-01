@@ -23,6 +23,7 @@ from .routers import (
     subject,
     subjects,
 )
+from .utils import use_route_names_as_operation_ids
 
 description = """
 Virtual Biospecimen API helps manage Biospecimen logistics and processing.
@@ -30,6 +31,39 @@ Virtual Biospecimen API helps manage Biospecimen logistics and processing.
 """
 
 settings = get_settings()
+
+tags_metadata = [
+    {
+        "name": "biosamples",
+        "description": "Biosamples are virtual collections of Measurements.",
+    },
+    {
+        "name": "containers",
+        "description": "Containers physically hold Measurements. They can also hold other Containers.",
+    },
+    {"name": "locations", "description": "Containers must be in a Location."},
+    {"name": "measurements", "description": "Biological samples AKA Measurements"},
+    {
+        "name": "organizations",
+        "description": "Locations are associated with an Organization.",
+    },
+    {
+        "name": "shipments",
+        "description": "Shipments manages conveyance of Containers between Locations.",
+    },
+    {
+        "name": "subjects",
+        "description": "Human Subjects are the source of all Biosamples.",
+    },
+    {
+        "name": "admin",
+        "description": "Users and roles are managed here. The **VBR_ADMIN** role is **required**.",
+    },
+    {
+        "name": "status",
+        "description": "Provides system-level health checks.",
+    },
+]
 
 app = FastAPI(
     title="  API",
@@ -41,6 +75,7 @@ app = FastAPI(
         "email": "a2cps@tacc.cloud",
     },
     debug=settings.app_debug,
+    openapi_tags=tags_metadata,
 )
 
 
@@ -67,7 +102,7 @@ class ApiStatus(BaseModel):
     message: str
 
 
-@app.get("/status", response_model=ApiStatus)
+@app.get("/status", tags=["status"], response_model=ApiStatus)
 async def status() -> dict:
     """Provides an unauthenticated status check."""
     return {
@@ -81,7 +116,10 @@ async def status() -> dict:
 
 
 @app.get(
-    "/status/auth", dependencies=[Depends(role_vbr_user)], response_model=ApiStatus
+    "/status/auth",
+    tags=["status"],
+    dependencies=[Depends(role_vbr_user)],
+    response_model=ApiStatus,
 )
 async def status_auth_check() -> dict:
     """Provides an authenticated status check."""
@@ -114,3 +152,5 @@ app.include_router(subject.router)
 # Admin-only routes.
 # All requires VBR_ADMIN role
 app.include_router(admin.router)
+
+use_route_names_as_operation_ids(app)

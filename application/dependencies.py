@@ -1,8 +1,10 @@
+from functools import lru_cache
 import os
 from typing import List, Optional
 
 import jwt
 import vbr
+from vbr.hashable import picklecache
 from fastapi import Depends, Header, HTTPException
 from tapipy.tapis import Tapis
 from tapipy.errors import BaseTapyException
@@ -15,6 +17,12 @@ async def limit_offset(offset: int = 0, limit: int = 20):
     return {"offset": offset, "limit": limit}
 
 
+@picklecache.mcache(lru_cache(maxsize=32))
+def _client(token: str) -> Tapis:
+    return Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+
+
+# @picklecache.mcache(lru_cache(maxsize=32))
 def tapis_admin_client() -> Tapis:
     """Returns a service account Tapis client"""
     client = Tapis(
@@ -43,19 +51,20 @@ async def tapis_token(x_tapis_token: Optional[str] = Header(None)):
             # Tapis can validates JWT on its own but it's cheaper to do it early
             jwt.decode(x_tapis_token, options={"verify_signature": False})
         except jwt.exceptions.DecodeError:
-            raise HTTPException(status_code=401, detail="Token was not valid")
+            raise HTTPException(status_code=401, detail="X-Tapis-Token was not valid")
         except jwt.exceptions.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Token has expired")
+            raise HTTPException(status_code=401, detail="X-Tapis-Token has expired")
     return x_tapis_token
 
 
 def tapis_client(x_tapis_token: str = Depends(tapis_token)) -> Tapis:
     """Returns a user Tapis client for the provided token"""
     try:
-        client = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=x_tapis_token)
+        client = _client(x_tapis_token)
+    #        client = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=x_tapis_token)
     except BaseTapyException as exc:
         raise HTTPException(
-            status_code=401, detail="Token was invalid: {0}".format(exc)
+            status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
         )
     return client
 
@@ -63,10 +72,11 @@ def tapis_client(x_tapis_token: str = Depends(tapis_token)) -> Tapis:
 def tapis_user(token: str = Depends(tapis_token)):
     """Get Tapis user profile for the provided token."""
     try:
-        t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+        t = _client(token)
+    #        t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
     except BaseTapyException as exc:
         raise HTTPException(
-            status_code=401, detail="Token was invalid: {0}".format(exc)
+            status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
         )
     return t.authenticator.get_userinfo().username
 
@@ -74,10 +84,11 @@ def tapis_user(token: str = Depends(tapis_token)):
 def tapis_roles(user: str = Depends(tapis_user), token: str = Depends(tapis_token)):
     """Get Tapis SK roles for the provided user."""
     try:
-        t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
+        t = _client(token)
+        # t = Tapis(base_url=Config.TAPIS_BASE_URL, access_token=token)
     except BaseTapyException as exc:
         raise HTTPException(
-            status_code=401, detail="Token was invalid: {0}".format(exc)
+            status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
         )
     return t.sk.getUserRoles(user=user, tenant=Config.TAPIS_TENANT_ID).names
 

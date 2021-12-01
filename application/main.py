@@ -1,6 +1,7 @@
+import time
 from datetime import datetime, timedelta
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
 from .config import DevelopmentConfig as Config
@@ -29,7 +30,7 @@ Virtual Biospecimen API helps manage Biospecimen logistics and processing.
 """
 
 app = FastAPI(
-    title="Virtual Biospecimen Repository API",
+    title="  API",
     description=description,
     version="0.0.2",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
@@ -39,6 +40,15 @@ app = FastAPI(
     },
     debug=Config.DEBUG,
 )
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
 
 @app.on_event("startup")

@@ -1,4 +1,4 @@
-"""VBR Units"""
+"""VBR Containers Routes"""
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 from vbr.tableclasses import Container as ContainerRow

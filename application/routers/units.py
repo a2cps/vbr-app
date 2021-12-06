@@ -1,4 +1,4 @@
-"""VBR Units"""
+"""VBR Units Routes"""
 from fastapi import APIRouter, Depends, HTTPException
 
 from ..dependencies import *

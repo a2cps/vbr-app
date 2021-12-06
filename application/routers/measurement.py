@@ -1,4 +1,4 @@
-"""VBR Units"""
+"""VBR Measurement Routes"""
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 

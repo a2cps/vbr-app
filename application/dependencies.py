@@ -1,3 +1,4 @@
+"""Provides common dependencies for FastAPI routes"""
 import os
 from functools import lru_cache
 from typing import List, Optional
@@ -21,12 +22,19 @@ async def limit_offset(offset: int = 0, limit: int = settings.app_default_page_s
 
 @picklecache.mcache(lru_cache(maxsize=32))
 def _client(token: str) -> Tapis:
+    """Private: Returns a Tapis client given an Oauth token.
+
+    This is wrapped in an LRU cache to avoid having to load Tapis
+    library multiple times when the same token is provided as input.
+    """
     return Tapis(base_url=settings.tapis_base_url, access_token=token)
 
 
 # @picklecache.mcache(lru_cache(maxsize=32))
 def tapis_admin_client() -> Tapis:
-    """Returns a service account Tapis client"""
+    """Returns the configured service account Tapis client
+
+    This account must have the PGREST_ADMIN role."""
     client = Tapis(
         base_url=settings.tapis_base_url,
         username=settings.tapis_service_uname,
@@ -37,13 +45,14 @@ def tapis_admin_client() -> Tapis:
 
 
 def vbr_admin_client(client: Tapis = Depends(tapis_admin_client)):
-    """Returns an administrator VBR client"""
+    """Returns a VBR client that uses the configured Tapis service account"""
     vbr_client = vbr.api.get_vbr_api_client(client)
     return vbr_client
 
 
 async def tapis_token(x_tapis_token: Optional[str] = Header(None)):
     """Returns current Tapis access token."""
+    # Read from ENV to support local testing
     if os.environ.get("X_TAPIS_TOKEN", None) is not None:
         x_tapis_token = os.environ.get("X_TAPIS_TOKEN")
     if x_tapis_token is None:
@@ -98,6 +107,8 @@ def role_pgrest_admin(roles: List[str] = Depends(tapis_roles)):
 
 
 # Tapis SK Roles
+#
+# See https://github.com/a2cps/vbr-role for details
 #
 # VBR_ADMIN
 #   L_VBR_READ_ANY

@@ -16,7 +16,7 @@ def use_route_names_as_operation_ids(app: FastAPI) -> None:
 
 
 def recognize_delivery_service(tracking_code: str):
-    """Infer the carrier for a tracking code.
+    """Infer the parcel carrier for a tracking code.
 
     Can be used as a quick validation."""
 

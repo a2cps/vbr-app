@@ -1,150 +1,91 @@
 from functools import lru_cache
-from typing import Union
+from typing import Union, List
 
 from attrdict import AttrDict
+from attrdict.mixins import Attr
 from vbr.api import VBR_Api
 from vbr.hashable import picklecache
 from vbr.tableclasses import Table
 
 from .redcap import build_demographics_for_subject
 
-# TODO - make each builder accept either Table instance or entity.
 IdentOrRow = Union[Table, int]
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_anatomy(entity: IdentOrRow, api: VBR_Api) -> dict:
+@picklecache.mcache(lru_cache(maxsize=1024))
+def _build_generic(
+    entity: IdentOrRow, table_name: str, column_names: List[str], api: VBR_Api
+) -> AttrDict:
     data = {}
-    if isinstance(entity, Table):
+    if entity is None:
+        return data
+    elif isinstance(entity, Table):
         obj = entity
     else:
-        obj = api._get_row_from_table_with_id("anatomy", entity)
+        obj = api._get_row_from_table_with_id(table_name, entity)
     objd = obj.dict()
-    data["_anatomy_id"] = objd["anatomy_id"]
-    for key in ("id", "name", "description"):
-        data[key] = objd.get(key, None)
+    data["_{0}_id".format(table_name)] = objd.pop("{0}_id".format(table_name))
+    data["{0}_id".format(table_name)] = objd.pop("local_id")
+    for k in column_names:
+        data[k] = objd.pop(k, None)
+    # NOTE: This precludes presence of a field named "_extra" in the database response.
+    data["_extra"] = objd
     return AttrDict(data)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_location(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("location", entity)
-    objd = obj.dict()
-    data["_location_id"] = objd["location_id"]
-    data["location_id"] = objd["local_id"]
-    for key in (
-        "display_name",
-        "address1",
-        "address2",
-        "address3",
-        "city",
-        "state_province_country",
-        "zip_or_postcode",
-    ):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_anatomy(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "anatomy", ["id", "name", "description"], api)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_container_type(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("container_type", entity)
-    objd = obj.dict()
-    data["_container_type_id"] = objd["container_type_id"]
-    for key in ("name", "description"):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_container_type(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "container_type", ["name", "description"], api)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_measurement_type(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("measurement_type", entity)
-    objd = obj.dict()
-    data["_measurement_type_id"] = objd["measurement_type_id"]
-    for key in ("name", "description"):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_measurement_type(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "measurement_type", ["name", "description"], api)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_unit(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("unit", entity)
-    objd = obj.dict()
-    data["_unit_id"] = objd["unit_id"]
-    for key in ("name", "description"):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_unit(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "unit", ["name", "description"], api)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_organization(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("organization", entity)
-    objd = obj.dict()
-    data["_organization_id"] = objd["organization_id"]
-    for key in ("name", "description", "url"):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_organization(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "organization", ["name", "description", "url"], api)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_project(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("project", entity)
-    objd = obj.dict()
-    data["_project_id"] = objd["project_id"]
-    for key in ("abbreviation", "name", "description"):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_project(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(
+        entity, "project", ["abbreviation", "name", "description"], api
+    )
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_protocol(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("protocol", entity)
-    objd = obj.dict()
-    data["_protocol_id"] = objd["protocol_id"]
-    for key in ("name", "description"):
-        data[key] = objd.get(key, None)
-    return AttrDict(data)
+def build_protocol(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "protocol", ["name", "description"], api)
 
 
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_status(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api._get_row_from_table_with_id("status", entity)
-    objd = obj.dict()
-    data["_status_id"] = objd["status_id"]
-    for key in ("name", "description"):
-        data[key] = obj.dict().get(key, None)
-    return AttrDict(data)
+def build_status(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    return _build_generic(entity, "status", ["name", "description"], api)
+
+
+def build_location(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    data = _build_generic(
+        entity,
+        "location",
+        [
+            "display_name",
+            "address1",
+            "address2",
+            "address3",
+            "city",
+            "state_province_country",
+            "zip_or_postcode",
+        ],
+        api,
+    )
+    extra_data = data.pop("_extra", {})
+    organization = extra_data.pop("organization", None)
+    data["organization"] = build_organization(organization, api)
+    return data
 
 
 @picklecache.mcache(lru_cache(maxsize=256))

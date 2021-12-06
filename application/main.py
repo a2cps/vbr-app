@@ -81,6 +81,7 @@ app = FastAPI(
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
+    """Adds a timing header to each service response."""
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
@@ -90,10 +91,13 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.on_event("startup")
 async def startup_event():
+    # Stores a timestamp so we can figure out how long the server has been up
     app.state.STARTUP_TIME = datetime.now()
 
 
 class ApiStatus(BaseModel):
+    """API Status Response"""
+
     service: str
     version: str
     tenant: str

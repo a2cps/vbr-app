@@ -1,4 +1,4 @@
-"""VBR Units"""
+"""VBR Biosample Routes"""
 from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import Field
 from vbr.api import VBR_Api

@@ -25,8 +25,17 @@ image:
 build_ecr: image
 	docker tag a2cps/vbr_api:latest 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest
 
-deploy: build_ecr
+auth_ecr:
+	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 673872715994.dkr.ecr.us-east-1.amazonaws.com
+
+deploy: build_ecr auth_ecr
 	docker push 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest
 
 localhost:
 	uvicorn application.main:app --reload
+
+compose-up:
+	docker-compose up --build --force-recreate -d
+
+compose-down:
+	docker-compose down

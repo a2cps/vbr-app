@@ -39,10 +39,22 @@ class User(BaseModel):
     name: str
     email: EmailStr
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "username": "tacobot",
+                "name": "Chuy Tacbobot",
+                "email": "elpresidente@tacobot.com",
+            }
+        }
+
 
 class AddUser(BaseModel):
     username: str
     role: Optional[Role] = "VBR_READ_PUBLIC"
+
+    class Config:
+        schema_extra = {"example": {"username": "tacobot", "role": "VBR_READ_PUBLIC"}}
 
 
 def build_user(username: str, client: Tapis) -> User:

@@ -19,3 +19,15 @@ class CreateShipment(BaseModel):
     container_ids: Optional[List[ContainerLocalId]] = Field(
         None, title="Optional List of Container Ids to add to Shipment"
     )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "tracking_id": "999999999999",
+                "name": "Important Shipment",
+                "sender_name": "Winship 'Shippy' Shippman",
+                "ship_from_location_id": "8rd3VX8PLrjMO",
+                "ship_to_location_id": "7ykbk069YDJP",
+                "container_ids": ["PRNRNE2wxX5bB", "7RbNKpb3JJ31Y", "8keBME2MOxv72"],
+            }
+        }

@@ -3,6 +3,9 @@
 env/
 env.rc
 
+# Deployment
+docker-compose.yml
+
 # Abaco and Reactors-specific
 .agave
 .agpy

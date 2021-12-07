@@ -1,3 +1,4 @@
+attrdict
 email-validator
 fastapi
 uvicorn[standard]

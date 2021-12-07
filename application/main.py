@@ -66,9 +66,9 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="  API",
+    title="Virtual Biospecimen Repository API",
     description=description,
-    version="0.0.2",
+    version="0.0.3",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
     contact={
         "name": "A2CPS Open Source",

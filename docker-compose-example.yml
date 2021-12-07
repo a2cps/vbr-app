@@ -1,0 +1,15 @@
+---
+version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - "5001:5000"
+    environment:
+      TAPIS_BASE_URL: "https://tacc.tapis.io"
+      TAPIS_TENANT_ID: "tacc"
+      TAPIS_CLIENT_KEY: ""
+      TAPIS_CLIENT_SECRET: ""
+      TAPIS_CLIENT_SCOPE: "PRODUCTION"
+      TAPIS_SERVICE_UNAME: "tacbobot"
+      TAPIS_SERVICE_PASS: "9@$sw0r6!"

@@ -18,3 +18,15 @@ lint:
 
 isort:
 	isort *.py
+
+image:
+	docker build -t a2cps/vbr_api .
+
+build_ecr: image
+	docker tag a2cps/vbr_api:latest 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest
+
+deploy: build_ecr
+	docker push 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest
+
+localhost:
+	uvicorn application.main:app --reload

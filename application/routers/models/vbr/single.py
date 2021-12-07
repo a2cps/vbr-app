@@ -7,14 +7,6 @@ from pydantic import BaseModel, Field
 from .primitives import *
 
 
-class Container(BaseModel):
-    _container_id: int
-    container_id: str
-    tracking_id: str
-    location: int
-    container_type: ContainerType
-
-
 class Location(BaseModel):
     _location_id: int
     location_id: str
@@ -27,10 +19,18 @@ class Location(BaseModel):
     zip_or_postcode: Optional[str]
     organization: Optional[Organization]
 
-
-class Subject(BaseModel):
-    _subject_id: int
-    subject_id: str
-    creation_time: str
-    tracking_id: UUID
-    project: Project
+    class Config:
+        schema_extra = {
+            "example": {
+                "_location_id": 12345,
+                "location_id": "7yKzwW8LXA6vE",
+                "display_name": "TACC",
+                "address1": "Advanced Computing Building (ACB)",
+                "address2": "J.J. Pickle Research Campus, Building 205",
+                "address3": "10100 Burnet Rd (R8700)",
+                "city": "Austin",
+                "state_province_country": "TX",
+                "zip_or_postcode": "78758",
+                "organization": None,
+            }
+        }

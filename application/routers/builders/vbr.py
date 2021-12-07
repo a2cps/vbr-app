@@ -18,7 +18,7 @@ def _build_generic(
 ) -> AttrDict:
     data = {}
     if entity is None:
-        return data
+        return None
     elif isinstance(entity, Table):
         obj = entity
     else:
@@ -67,6 +67,9 @@ def build_status(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
     return _build_generic(entity, "status", ["name", "description"], api)
 
 
+# Complex types
+
+
 def build_location(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
     data = _build_generic(
         entity,
@@ -85,6 +88,44 @@ def build_location(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
     extra_data = data.pop("_extra", {})
     organization = extra_data.pop("organization", None)
     data["organization"] = build_organization(organization, api)
+    return data
+
+
+def build_container(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    data = _build_generic(
+        entity,
+        "container",
+        [
+            "tracking_id",
+        ],
+        api,
+    )
+    extra_data = data.pop("_extra", {})
+    location = extra_data.pop("location", None)
+    data["location"] = build_location(location, api)
+    status = extra_data.pop("status", None)
+    data["status"] = build_status(status, api)
+    container_type = extra_data.pop("container_type", None)
+    data["container_type"] = build_container_type(container_type, api)
+    return data
+
+
+def build_shipment(entity: IdentOrRow, api: VBR_Api) -> AttrDict:
+    data = _build_generic(
+        entity,
+        "shipment",
+        ["name", "sender_name", "tracking_id"],
+        api,
+    )
+    extra_data = data.pop("_extra", {})
+    ship_from = extra_data.pop("ship_from", None)
+    data["ship_from"] = build_location(ship_from, api)
+    ship_to = extra_data.pop("ship_to", None)
+    data["ship_to"] = build_location(ship_to, api)
+    project = extra_data.pop("project", None)
+    data["project"] = build_project(project, api)
+    status = extra_data.pop("status", None)
+    data["status"] = build_status(status, api)
     return data
 
 
@@ -163,28 +204,6 @@ def build_biosample(entity: IdentOrRow, api: VBR_Api) -> dict:
 
 
 @picklecache.mcache(lru_cache(maxsize=256))
-def build_container(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api.get_container(entity)
-    objd = obj.dict()
-    # Start with static values
-    data["_container_id"] = objd["container_id"]
-    data["container_id"] = objd["local_id"]
-    for key in [
-        "tracking_id",
-    ]:
-        data[key] = objd.get(key, None)
-    # Nested values
-    data["container_type"] = build_container_type(objd.get("container_type", None), api)
-    data["location"] = build_location(objd.get("location", None), api)
-    data["status"] = build_status(objd.get("status", None), api)
-    return AttrDict(data)
-
-
-@picklecache.mcache(lru_cache(maxsize=256))
 def build_measurement(entity: IdentOrRow, api: VBR_Api) -> dict:
     data = {}
     if isinstance(entity, Table):
@@ -207,25 +226,4 @@ def build_measurement(entity: IdentOrRow, api: VBR_Api) -> dict:
     )
     data["status"] = build_status(objd.get("status", None), api)
     data["unit"] = build_unit(objd.get("unit", None), api)
-    return AttrDict(data)
-
-
-@picklecache.mcache(lru_cache(maxsize=256))
-def build_shipment(entity: IdentOrRow, api: VBR_Api) -> dict:
-    data = {}
-    if isinstance(entity, Table):
-        obj = entity
-    else:
-        obj = api.get_shipment(entity)
-    objd = obj.dict()
-    # Start with static values
-    data["_shipment_id"] = objd["shipment_id"]
-    data["shipment_id"] = objd["local_id"]
-    for key in ("name", "sender_name", "tracking_id"):
-        data[key] = objd.get(key, None)
-    # Nested values
-    data["ship_from"] = build_location(objd.get("ship_from", None), api)
-    data["ship_to"] = build_location(objd.get("ship_to", None), api)
-    data["project"] = build_project(objd.get("project", None), api)
-    data["status"] = build_status(objd.get("status", None), api)
     return AttrDict(data)

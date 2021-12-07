@@ -10,3 +10,13 @@ class Demographics(BaseModel):
     ethnicity: Optional[str]
     race: Optional[str]
     sex: Optional[str]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "age": 48,
+                "ethnicity": "Not Hispanic or Latino",
+                "race": "Asian",
+                "sex": "Female",
+            }
+        }

@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from importlib import metadata
+from typing import Dict
 
 from .config import get_settings
 from .dependencies import *
@@ -99,11 +101,20 @@ class ApiStatus(BaseModel):
     """API Status Response"""
 
     service: str
-    version: str
+    versions: Dict
     tenant: str
     status: str
     uptime: timedelta
     message: str
+
+
+def versions():
+    v = {
+        "app": app.version,
+        "python_vbr": metadata.version("python_vbr"),
+        "tapipy": metadata.version("tapipy"),
+    }
+    return v
 
 
 @app.get("/status", tags=["status"], response_model=ApiStatus)
@@ -111,7 +122,7 @@ async def status() -> dict:
     """Provides an unauthenticated status check."""
     return {
         "service": app.title,
-        "version": app.version,
+        "versions": versions(),
         "tenant": settings.tapis_tenant_id,
         "status": "OK",
         "uptime": datetime.now() - app.state.STARTUP_TIME,
@@ -129,7 +140,7 @@ async def status_auth_check() -> dict:
     """Provides an authenticated status check."""
     return {
         "service": app.title,
-        "version": app.version,
+        "versions": versions(),
         "tenant": settings.tapis_tenant_id,
         "status": "OK",
         "uptime": datetime.now() - app.state.STARTUP_TIME,

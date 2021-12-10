@@ -20,7 +20,7 @@ isort:
 	isort *.py
 
 image:
-	docker build -t a2cps/vbr_api .
+	docker build --no-cache -t a2cps/vbr_api .
 
 build_ecr: image
 	docker tag a2cps/vbr_api:latest 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest

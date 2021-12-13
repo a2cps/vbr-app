@@ -13,11 +13,14 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/", dependencies=[], response_model=List[Shipment])
+
+@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Shipment])
 def list_shipments(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    """List Shipments.
+
+    Requires: **VBR_READ**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -32,12 +35,16 @@ def list_shipments(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/{shipment_id}", dependencies=[], response_model=Shipment)
+@router.get(
+    "/{shipment_id}", dependencies=[Depends(role_vbr_read)], response_model=Shipment
+)
 def get_shipment_by_id(
     shipment_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Shipment by ID.
+
+    Requires: **VBR_READ**"""
     query = {"shipment_id": {"operator": "eq", "value": shipment_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -47,12 +54,18 @@ def get_shipment_by_id(
     return row
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/tracking/{tracking_id}", dependencies=[], response_model=Shipment)
+@router.get(
+    "/tracking/{tracking_id}",
+    dependencies=[Depends(role_vbr_read)],
+    response_model=Shipment,
+)
 def get_shipment_by_tracking_id(
     tracking_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Shipment by parcel tracking ID.
+
+    Requires: **VBR_READ**"""
     query = {"tracking_id": {"operator": "eq", "value": tracking_id}}
     row = transform(
         client.vbr_client.query_view_rows(

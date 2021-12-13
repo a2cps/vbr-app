@@ -14,11 +14,13 @@ router = APIRouter(
 )
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/", dependencies=[], response_model=List[Location])
+@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Location])
 def list_locations(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    """List Locations.
+
+    Requires: **VBR_READ**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -33,12 +35,16 @@ def list_locations(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/{location_id}", dependencies=[], response_model=Location)
+@router.get(
+    "/{location_id}", dependencies=[Depends(role_vbr_read)], response_model=Location
+)
 def get_location_by_id(
     location_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Location by ID.
+
+    Requires: **VBR_READ**"""
     query = {"location_id": {"operator": "eq", "value": location_id}}
     row = transform(
         client.vbr_client.query_view_rows(

@@ -5,8 +5,12 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 
 from ..dependencies import *
-from .models import (Biospecimen, BiospecimenPrivate,
-                     BiospecimenPrivateExtended, transform)
+from .models import (
+    Biospecimen,
+    BiospecimenPrivate,
+    BiospecimenPrivateExtended,
+    transform,
+)
 
 router = APIRouter(
     prefix="/biospecimens",
@@ -14,11 +18,16 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/", dependencies=[], response_model=List[Biospecimen])
+
+@router.get(
+    "/", dependencies=[Depends(role_vbr_read)], response_model=List[Biospecimen]
+)
 def list_biospecimens(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    """List Biospecimens.
+
+    Requires: **VBR_READ**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -33,11 +42,17 @@ def list_biospecimens(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/private", dependencies=[], response_model=List[BiospecimenPrivate])
-def list_biospecimens_with_biological_sex(
+@router.get(
+    "/private",
+    dependencies=[Depends(role_vbr_read_any)],
+    response_model=List[BiospecimenPrivate],
+)
+def list_biospecimens_with_limited_phi(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    """List Biospecimens with limited PHI.
+
+    Requires: **VBR_READ_ANY**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -52,12 +67,18 @@ def list_biospecimens_with_biological_sex(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/{biospecimen_id}", dependencies=[], response_model=Biospecimen)
+@router.get(
+    "/{biospecimen_id}",
+    dependencies=[Depends(role_vbr_read)],
+    response_model=Biospecimen,
+)
 def get_biospecimen_by_id(
     biospecimen_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Biospecimen by ID.
+
+    Requires: **VBR_READ**"""
     query = {"biospecimen_id": {"operator": "eq", "value": biospecimen_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -67,12 +88,18 @@ def get_biospecimen_by_id(
     return row
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/tracking/{tracking_id}", dependencies=[], response_model=Biospecimen)
+@router.get(
+    "/tracking/{tracking_id}",
+    dependencies=[Depends(role_vbr_read)],
+    response_model=Biospecimen,
+)
 def get_biospecimen_by_id(
     tracking_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Biospecimen by Tracking ID.
+
+    Requires: **VBR_READ**"""
     query = {"tracking_id": {"operator": "eq", "value": tracking_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -84,13 +111,16 @@ def get_biospecimen_by_id(
 
 @router.get(
     "/{biospecimen_id}/private",
-    dependencies=[],
+    dependencies=[Depends(role_vbr_read_any)],
     response_model=BiospecimenPrivateExtended,
 )
-def get_biospecimen_private_info_by_id(
+def get_biospecimen_by_id_with_extended_phi(
     biospecimen_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Biospecimen with extended PHI by ID.
+
+    Requires: **VBR_READ_ANY**"""
     query = {"biospecimen_id": {"operator": "eq", "value": biospecimen_id}}
     row = transform(
         client.vbr_client.query_view_rows(

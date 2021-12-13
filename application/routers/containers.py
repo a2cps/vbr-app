@@ -14,11 +14,13 @@ router = APIRouter(
 )
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/", dependencies=[], response_model=List[Container])
+@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Container])
 def list_containers(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    """List Containers.
+
+    Requires: **VBR_READ**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -33,12 +35,16 @@ def list_containers(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/{container_id}", dependencies=[], response_model=Container)
+@router.get(
+    "/{container_id}", dependencies=[Depends(role_vbr_read)], response_model=Container
+)
 def get_container_by_id(
     container_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Container by ID.
+
+    Requires: **VBR_READ**"""
     query = {"container_id": {"operator": "eq", "value": container_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -48,12 +54,18 @@ def get_container_by_id(
     return row
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/tracking/{tracking_id}", dependencies=[], response_model=Container)
+@router.get(
+    "/tracking/{tracking_id}",
+    dependencies=[Depends(role_vbr_read)],
+    response_model=Container,
+)
 def get_container_by_tracking_id(
     tracking_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Container by tracking ID.
+
+    Requires: **VBR_READ**"""
     query = {"container_tracking_id": {"operator": "eq", "value": tracking_id}}
     row = transform(
         client.vbr_client.query_view_rows(

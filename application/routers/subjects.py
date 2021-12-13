@@ -14,11 +14,13 @@ router = APIRouter(
 )
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/", dependencies=[], response_model=List[Subject])
+@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Subject])
 def list_subjects(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    """List Subjects.
+
+    Requires: **VBR_READ**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -33,12 +35,17 @@ def list_subjects(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/private", dependencies=[], response_model=List[SubjectPrivate])
-def list_subjects_with_biological_sex(
+@router.get(
+    "/private",
+    dependencies=[Depends(role_vbr_read_any)],
+    response_model=List[SubjectPrivate],
+)
+def list_subjects_with_limited_phi(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
-    # TODO - build up from filters
+    """List Subjects including limited PHI.
+
+    Requires: **VBR_READ_ANY**"""
     query = {}
     rows = [
         transform(c)
@@ -52,12 +59,16 @@ def list_subjects_with_biological_sex(
     return rows
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/{subject_id}", dependencies=[], response_model=Subject)
+@router.get(
+    "/{subject_id}", dependencies=[Depends(role_vbr_read)], response_model=Subject
+)
 def get_subject_by_id(
     subject_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Subject by ID.
+
+    Requires: **VBR_READ**"""
     query = {"subject_id": {"operator": "eq", "value": subject_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -67,12 +78,18 @@ def get_subject_by_id(
     return row
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
-@router.get("/guid/{subject_guid}", dependencies=[], response_model=Subject)
+@router.get(
+    "/guid/{subject_guid}",
+    dependencies=[Depends(role_vbr_read)],
+    response_model=Subject,
+)
 def get_subject_by_guid(
     subject_guid: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
+    """Get a Subject by assigned GUID.
+
+    Requires: **VBR_READ**"""
     query = {"subject_guid": {"operator": "eq", "value": subject_guid}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -82,17 +99,19 @@ def get_subject_by_guid(
     return row
 
 
-# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
 @router.get(
-    "/guid/{subject_guid}/private",
-    dependencies=[],
+    "/{subject_id}/private",
+    dependencies=[Depends(role_vbr_read_any)],
     response_model=SubjectPrivateExtended,
 )
-def get_subject_private_info_by_guid(
-    subject_guid: str,
+def get_subject_by_id_with_extended_phi(
+    subject_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
-    query = {"subject_guid": {"operator": "eq", "value": subject_guid}}
+    """Get a Subject with extended PHI by ID.
+
+    Requires: **VBR_READ_ANY**"""
+    query = {"subject_id": {"operator": "eq", "value": subject_id}}
     row = transform(
         client.vbr_client.query_view_rows(
             view_name="subjects_private", query=query, limit=1, offset=0

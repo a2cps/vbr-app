@@ -1,12 +1,20 @@
 import argparse
 import os
 import re
+import sys
 
 # import sqlfluff
 from tapipy.tapis import Tapis
 from vbr.client.connection import TapisDirectClient
 
 VIEWS_PATH = "./views"
+
+
+def delete_view(view_name: str, client: Tapis):
+    views = client.pgrest.list_views()
+    for view in views:
+        if view.view_name == view_name or view.root_url == view_name:
+            client.pgrest.delete_view(view_name=view.manage_view_id)
 
 
 def load_sql(filename: str, tenant_id: str, replace: bool = False) -> str:
@@ -43,6 +51,9 @@ def main(arg_vals):
     base_views = []
     child_views = []
     for view_file in view_sql_files:
+        if arg_vals["view_names"] != []:
+            if view_file not in arg_vals["view_names"]:
+                continue
         raw_sql = load_sql(os.path.join(VIEWS_PATH, view_file), tenant_id, False)
         data = construct_view(view_file, raw_sql)
         if "base" in data["view_name"]:
@@ -56,6 +67,14 @@ def main(arg_vals):
     # TODO - Check for existence and delete
     for view in base_views:
         try:
+            # try:
+            #     client.setup("pgrest", api_path="manage/views/" + view["view_name"])
+            #     resp = client.delete()
+            #     print("Deleted {0}".format(view["view_name"]))
+            #     client.setup("pgrest", api_path="manage/views")
+            # except Exception as exc:
+            #     # TODO - better error checking and reporting
+            #     print(exc)
             resp = client.post(data=view)
             print("Created " + view["view_name"])
         except Exception as exc:
@@ -92,5 +111,6 @@ if __name__ == "__main__":
         default=os.environ.get("TAPIS_PASSWORD"),
         help="Tapis Password",
     )
+    parser.add_argument("view_names", nargs="*", help="Optional view name(s)")
     args = parser.parse_args()
     main(vars(args))

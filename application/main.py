@@ -1,30 +1,15 @@
 import time
 from datetime import datetime, timedelta
+from importlib import metadata
+from typing import Dict
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from importlib import metadata
-from typing import Dict
 
 from .config import get_settings
 from .dependencies import *
 from .internal import admin
-from .routers import (
-    biosample,
-    biosamples,
-    container,
-    containers,
-    location,
-    locations,
-    measurement,
-    measurements,
-    organization,
-    organizations,
-    shipment,
-    shipments,
-    subject,
-    subjects,
-)
+from .routers import biospecimens, containers, locations, shipments, subjects
 from .utils import use_route_names_as_operation_ids
 
 description = """
@@ -36,41 +21,43 @@ settings = get_settings()
 
 tags_metadata = [
     {
-        "name": "biosamples",
-        "description": "Biosamples are virtual collections of Measurements.",
+        "name": "biospecimens",
+        "description": "Biospecimens are samples collected from a Subject.",
+    },
+    {
+        "name": "collections",
+        "description": "Collections are virtual groupings of Biospecimens.",
     },
     {
         "name": "containers",
-        "description": "Containers physically hold Measurements. They can also hold other Containers.",
+        "description": "Containers hold Biospecimens.",
     },
-    {"name": "locations", "description": "Containers must be in a Location."},
-    {"name": "measurements", "description": "Biological samples AKA Measurements"},
     {
-        "name": "organizations",
-        "description": "Locations are associated with an Organization.",
+        "name": "locations",
+        "description": "Locations hold Containers.",
     },
     {
         "name": "shipments",
-        "description": "Shipments manages conveyance of Containers between Locations.",
+        "description": "Shipments convey Containers between Locations.",
     },
     {
         "name": "subjects",
-        "description": "Human Subjects are the source of all Biosamples.",
+        "description": "Subjects are human participants in the project.",
     },
     {
         "name": "admin",
-        "description": "Users and roles are managed here. The **VBR_ADMIN** role is **required**.",
+        "description": "These endpoints manage users and roles.",
     },
     {
         "name": "status",
-        "description": "Provides system-level health checks.",
+        "description": "These endpoints provide basic system health checks.",
     },
 ]
 
 app = FastAPI(
     title="Virtual Biospecimen Repository API",
     description=description,
-    version="0.0.3",
+    version="0.1.0",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
     contact={
         "name": "A2CPS Open Source",
@@ -149,21 +136,14 @@ async def status_auth_check() -> dict:
 
 
 # User-mode routes
-app.include_router(biosamples.router)
-app.include_router(biosample.router)
+app.include_router(biospecimens.router)
 app.include_router(containers.router)
-app.include_router(container.router)
 app.include_router(locations.router)
-app.include_router(location.router)
-app.include_router(measurements.router)
-app.include_router(measurement.router)
-app.include_router(organizations.router)
-app.include_router(organization.router)
+# app.include_router(organizations.router)
+# app.include_router(organization.router)
 app.include_router(shipments.router)
-app.include_router(shipment.router)
+# app.include_router(shipment.router)
 app.include_router(subjects.router)
-app.include_router(subject.router)
-# app.include_router(units.router)
 # Admin-only routes.
 # All requires VBR_ADMIN role
 app.include_router(admin.router)

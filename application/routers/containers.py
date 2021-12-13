@@ -1,14 +1,11 @@
-"""VBR Containers Routes"""
+"""VBR Container routes"""
+from typing import Dict
+
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
-from vbr.tableclasses import Container as ContainerRow
-
-from application.routers.models.actions import location
 
 from ..dependencies import *
-from .builders import build_container
-from .models import Container, ContainerTable, CreateContainer
-from .models.tables import build_container_table
+from .models import Container, transform
 
 router = APIRouter(
     prefix="/containers",
@@ -17,60 +14,60 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Container])
-def containers(
+# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
+@router.get("/", dependencies=[], response_model=List[Container])
+def list_containers(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
+    # TODO - build up from filters
+    query = {}
     rows = [
-        c
-        for c in client.vbr_client.list_rows(
-            "container", limit=common["limit"], offset=common["offset"]
+        transform(c)
+        for c in client.vbr_client.query_view_rows(
+            view_name="containers_public",
+            query=query,
+            limit=common["limit"],
+            offset=common["offset"],
         )
     ]
-    containers = [build_container(row, client) for row in rows]
-    return containers
+    return rows
 
 
-@router.post("/", dependencies=[Depends(role_vbr_write)], response_model=Container)
-def create_container(
-    body: CreateContainer = Body(...),
+# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
+@router.get("/{container_id}", dependencies=[], response_model=Container)
+def get_container_by_id(
+    container_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
-    data = body.dict()
-    # Lookup local_ids and transform into _pkids
-    # TODO - consider making this an vbr.api
-    parent_local_id = data.pop("parent_container_id", None)
-    location_local_id = data.pop("location_id", None)
-    if parent_local_id is not None:
-        data["parent_id"] = client.get_container_by_local_id(
-            parent_local_id
-        ).primary_key_id()
-    if location_local_id is not None:
-        data["location_id"] = client.get_location_by_local_id(
-            location_local_id
-        ).primary_key_id()
-
-    # TODO - this should not be hard-coded. Replace once container_type gains local_id and we've implemented a container_types listing
-    data["container_type_id"] = 1
-    data["project_id"] = 1
-    resp = client.create_container(**data)
-    return build_container(resp, client)
+    query = {"container_id": {"operator": "eq", "value": container_id}}
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="containers_public", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
 
 
-@router.get(
-    "/table",
-    dependencies=[Depends(role_vbr_read)],
-    response_model=List[ContainerTable],
-)
-def container_tables(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+# @router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Dict])
+@router.get("/tracking/{tracking_id}", dependencies=[], response_model=Container)
+def get_container_by_tracking_id(
+    tracking_id: str,
+    client: VBR_Api = Depends(vbr_admin_client),
 ):
-    rows = [
-        c
-        for c in client.vbr_client.list_rows(
-            "container", limit=common["limit"], offset=common["offset"]
-        )
-    ]
-    containers = [build_container(row, client) for row in rows]
-    container_tables = [build_container_table(cont, client) for cont in containers]
-    return container_tables
+    query = {"container_tracking_id": {"operator": "eq", "value": tracking_id}}
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="containers_public", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
+
+
+# TODO
+# PUT /{container_id}/status - update status by status.name
+# PUT /{container_id}/location - update location by location_id
+# GET /{container_id}/history
+# GET /{container_id}/comments
+# POST /{container_id}/comments
+# TODO Later
+# POST / - create new container

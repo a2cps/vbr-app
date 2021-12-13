@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Shipment])
+@router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Shipment])
 def list_shipments(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
@@ -36,7 +36,7 @@ def list_shipments(
 
 
 @router.get(
-    "/{shipment_id}", dependencies=[Depends(role_vbr_read)], response_model=Shipment
+    "/{shipment_id}", dependencies=[Depends(vbr_read_public)], response_model=Shipment
 )
 def get_shipment_by_id(
     shipment_id: str,
@@ -56,7 +56,7 @@ def get_shipment_by_id(
 
 @router.get(
     "/tracking/{tracking_id}",
-    dependencies=[Depends(role_vbr_read)],
+    dependencies=[Depends(vbr_read_public)],
     response_model=Shipment,
 )
 def get_shipment_by_tracking_id(

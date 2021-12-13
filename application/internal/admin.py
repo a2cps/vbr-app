@@ -69,7 +69,7 @@ def build_user(username: str, client: Tapis) -> User:
 
 @router.get(
     "/users",
-    dependencies=[Depends(tapis_client), Depends(role_vbr_admin)],
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=List[User],
 )
 def list_users(client: Tapis = Depends(tapis_client)):
@@ -83,7 +83,7 @@ def list_users(client: Tapis = Depends(tapis_client)):
 
 @router.post(
     "/users",
-    dependencies=[Depends(tapis_client), Depends(role_vbr_admin)],
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=User,
 )
 def add_user(body: AddUser = Body(...), client: Tapis = Depends(tapis_client)):
@@ -101,7 +101,7 @@ def add_user(body: AddUser = Body(...), client: Tapis = Depends(tapis_client)):
 
 @router.get(
     "/user/{username}",
-    dependencies=[Depends(tapis_client), Depends(role_vbr_admin)],
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=User,
 )
 def get_user(username: str, client: Tapis = Depends(tapis_client)):
@@ -118,7 +118,7 @@ def get_user(username: str, client: Tapis = Depends(tapis_client)):
 
 @router.get(
     "/user/{username}/roles",
-    dependencies=[Depends(tapis_client), Depends(role_vbr_admin)],
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=List[Role],
 )
 def list_user_roles(username: str, client: Tapis = Depends(tapis_client)):
@@ -135,7 +135,7 @@ def list_user_roles(username: str, client: Tapis = Depends(tapis_client)):
 
 @router.put(
     "/user/{username}/roles",
-    dependencies=[Depends(tapis_client), Depends(role_vbr_admin)],
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=List[Role],
 )
 def grant_user_role(
@@ -160,7 +160,7 @@ def grant_user_role(
 
 @router.delete(
     "/user/{username}/roles/{role}",
-    dependencies=[Depends(tapis_client), Depends(role_vbr_admin)],
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=List[Role],
 )
 def revoke_user_role(username: str, role: Role, client: Tapis = Depends(tapis_client)):

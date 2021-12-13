@@ -108,45 +108,39 @@ def role_pgrest_admin(roles: List[str] = Depends(tapis_roles)):
 
 # Tapis SK Roles
 #
-# See https://github.com/a2cps/vbr-role for details
-#
-# VBR_ADMIN
-#   L_VBR_READ_ANY
-#     L_VBR_READ_PUBLIC
-#   L_VBR_WRITE_ANY
-#     L_VBR_WRITE_PUBLIC
-#
-# VBR_WRITE_ANY
-#   L_ VBR_READ_ANY
-# VBR_WRITE_PUBLIC
-#   L_ VBR_READ_PUBLIC
+# See ../scripts/create_roles.py for details
 
 
-def role_vbr_user(roles: List[str] = Depends(tapis_roles)):
+def vbr_user(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_USER" in roles:
         raise HTTPException(status_code=401)
 
 
-def role_vbr_admin(roles: List[str] = Depends(tapis_roles)):
+def vbr_admin(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_ADMIN" in roles:
         raise HTTPException(status_code=401)
 
 
-def role_vbr_read(roles: List[str] = Depends(tapis_roles)):
+def vbr_read_public(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_READ_PUBLIC" in roles:
         raise HTTPException(status_code=401)
 
 
-def role_vbr_read_any(roles: List[str] = Depends(tapis_roles)):
-    if not "VBR_READ_ANY" in roles:
+def vbr_read_limited_phi(roles: List[str] = Depends(tapis_roles)):
+    if not "VBR_READ_LIMITED_PHI" in roles:
         raise HTTPException(status_code=401)
 
 
-def role_vbr_write(roles: List[str] = Depends(tapis_roles)):
+def vbr_read_any_phi(roles: List[str] = Depends(tapis_roles)):
+    if not "VBR_READ_ANY_PHI" in roles:
+        raise HTTPException(status_code=401)
+
+
+def vbr_write_public(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_WRITE_PUBLIC" in roles:
         raise HTTPException(status_code=401)
 
 
-def role_vbr_write_any(roles: List[str] = Depends(tapis_roles)):
+def vbr_write_any(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_WRITE_ANY" in roles:
         raise HTTPException(status_code=401)

@@ -5,12 +5,8 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
 
 from ..dependencies import *
-from .models import (
-    Biospecimen,
-    BiospecimenPrivate,
-    BiospecimenPrivateExtended,
-    transform,
-)
+from .models import (Biospecimen, BiospecimenPrivate,
+                     BiospecimenPrivateExtended, transform)
 
 router = APIRouter(
     prefix="/biospecimens",
@@ -20,7 +16,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/", dependencies=[Depends(role_vbr_read)], response_model=List[Biospecimen]
+    "/", dependencies=[Depends(vbr_read_public)], response_model=List[Biospecimen]
 )
 def list_biospecimens(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
@@ -44,7 +40,7 @@ def list_biospecimens(
 
 @router.get(
     "/private",
-    dependencies=[Depends(role_vbr_read_any)],
+    dependencies=[Depends(vbr_read_limited_phi)],
     response_model=List[BiospecimenPrivate],
 )
 def list_biospecimens_with_limited_phi(
@@ -69,7 +65,7 @@ def list_biospecimens_with_limited_phi(
 
 @router.get(
     "/{biospecimen_id}",
-    dependencies=[Depends(role_vbr_read)],
+    dependencies=[Depends(vbr_read_public)],
     response_model=Biospecimen,
 )
 def get_biospecimen_by_id(
@@ -90,7 +86,7 @@ def get_biospecimen_by_id(
 
 @router.get(
     "/tracking/{tracking_id}",
-    dependencies=[Depends(role_vbr_read)],
+    dependencies=[Depends(vbr_read_public)],
     response_model=Biospecimen,
 )
 def get_biospecimen_by_id(
@@ -111,7 +107,7 @@ def get_biospecimen_by_id(
 
 @router.get(
     "/{biospecimen_id}/private",
-    dependencies=[Depends(role_vbr_read_any)],
+    dependencies=[Depends(vbr_read_any_phi)],
     response_model=BiospecimenPrivateExtended,
 )
 def get_biospecimen_by_id_with_extended_phi(

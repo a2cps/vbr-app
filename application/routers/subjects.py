@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Subject])
+@router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Subject])
 def list_subjects(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
@@ -37,7 +37,7 @@ def list_subjects(
 
 @router.get(
     "/private",
-    dependencies=[Depends(role_vbr_read_any)],
+    dependencies=[Depends(vbr_read_limited_phi)],
     response_model=List[SubjectPrivate],
 )
 def list_subjects_with_limited_phi(
@@ -60,7 +60,7 @@ def list_subjects_with_limited_phi(
 
 
 @router.get(
-    "/{subject_id}", dependencies=[Depends(role_vbr_read)], response_model=Subject
+    "/{subject_id}", dependencies=[Depends(vbr_read_public)], response_model=Subject
 )
 def get_subject_by_id(
     subject_id: str,
@@ -80,7 +80,7 @@ def get_subject_by_id(
 
 @router.get(
     "/guid/{subject_guid}",
-    dependencies=[Depends(role_vbr_read)],
+    dependencies=[Depends(vbr_read_public)],
     response_model=Subject,
 )
 def get_subject_by_guid(
@@ -101,7 +101,7 @@ def get_subject_by_guid(
 
 @router.get(
     "/{subject_id}/private",
-    dependencies=[Depends(role_vbr_read_any)],
+    dependencies=[Depends(vbr_read_any_phi)],
     response_model=SubjectPrivateExtended,
 )
 def get_subject_by_id_with_extended_phi(

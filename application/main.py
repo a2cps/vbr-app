@@ -120,7 +120,7 @@ async def status() -> dict:
 @app.get(
     "/status/auth",
     tags=["status"],
-    dependencies=[Depends(role_vbr_user)],
+    dependencies=[Depends(vbr_user)],
     response_model=ApiStatus,
 )
 async def status_auth_check() -> dict:

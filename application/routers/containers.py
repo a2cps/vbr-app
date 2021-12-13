@@ -14,7 +14,9 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Container])
+@router.get(
+    "/", dependencies=[Depends(vbr_read_public)], response_model=List[Container]
+)
 def list_containers(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
@@ -36,7 +38,7 @@ def list_containers(
 
 
 @router.get(
-    "/{container_id}", dependencies=[Depends(role_vbr_read)], response_model=Container
+    "/{container_id}", dependencies=[Depends(vbr_read_public)], response_model=Container
 )
 def get_container_by_id(
     container_id: str,
@@ -56,7 +58,7 @@ def get_container_by_id(
 
 @router.get(
     "/tracking/{tracking_id}",
-    dependencies=[Depends(role_vbr_read)],
+    dependencies=[Depends(vbr_read_public)],
     response_model=Container,
 )
 def get_container_by_tracking_id(

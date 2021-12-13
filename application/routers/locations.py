@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(role_vbr_read)], response_model=List[Location])
+@router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Location])
 def list_locations(
     client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
 ):
@@ -36,7 +36,7 @@ def list_locations(
 
 
 @router.get(
-    "/{location_id}", dependencies=[Depends(role_vbr_read)], response_model=Location
+    "/{location_id}", dependencies=[Depends(vbr_read_public)], response_model=Location
 )
 def get_location_by_id(
     location_id: str,

@@ -1,8 +1,8 @@
 SELECT
-    subject.subject_id AS subject_id,
-    subject.local_id AS subject_local_id,
+    subject.subject_id AS _subject_id,
+    subject.local_id AS subject_id,
     subject.tracking_id AS subject_guid,
-    project.name AS subject_project_name
+    project.name AS project
 FROM
     a2cpsdev.subject
 INNER JOIN

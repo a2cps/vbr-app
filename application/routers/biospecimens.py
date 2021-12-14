@@ -3,23 +3,16 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, measurement
-from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
+from vbr.utils.barcode import (generate_barcode_string,
+                               sanitize_identifier_string)
 
 from application.routers.models.actions import trackingid
 
 from ..dependencies import *
-from .models import (
-    Biospecimen,
-    BiospecimenPrivate,
-    BiospecimenPrivateExtended,
-    Comment,
-    CreateComment,
-    Event,
-    SetBiospecimenStatus,
-    SetContainer,
-    SetTrackingId,
-    transform,
-)
+from .models import (Biospecimen, BiospecimenPrivate,
+                     BiospecimenPrivateExtended, Comment, CreateComment, Event,
+                     SetBiospecimenStatus, SetContainer, SetTrackingId,
+                     transform)
 
 router = APIRouter(
     prefix="/biospecimens",

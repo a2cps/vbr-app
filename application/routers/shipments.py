@@ -4,20 +4,15 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, tracking_id
-from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
+from vbr.utils.barcode import (generate_barcode_string,
+                               sanitize_identifier_string)
 
 from application.routers.models.actions.comment import Comment
 from application.routers.models.actions.shipment import CreateShipment
 
 from ..dependencies import *
-from .models import (
-    Container,
-    CreateComment,
-    Event,
-    SetShipmentStatus,
-    Shipment,
-    transform,
-)
+from .models import (Container, CreateComment, Event, SetShipmentStatus,
+                     Shipment, transform)
 
 router = APIRouter(
     prefix="/shipments",

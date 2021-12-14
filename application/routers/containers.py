@@ -3,19 +3,15 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
-from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
+from vbr.utils.barcode import (generate_barcode_string,
+                               sanitize_identifier_string)
+
+from application.routers.models.biospecimen import Biospecimen
 
 from ..dependencies import *
-from .models import (
-    Comment,
-    Container,
-    CreateComment,
-    Event,
-    SetContainerLocation,
-    SetContainerStatus,
-    SetTrackingId,
-    transform,
-)
+from .models import (Biospecimen, Comment, Container, CreateComment, Event,
+                     SetContainerLocation, SetContainerStatus, SetTrackingId,
+                     transform)
 
 router = APIRouter(
     prefix="/containers",
@@ -86,6 +82,34 @@ def get_container_by_tracking_id(
         )[0]
     )
     return row
+
+
+# GET /{container_id}/biospecimens
+@router.get(
+    "/{container_id}/biospecimens",
+    dependencies=[Depends(vbr_read_public)],
+    response_model=List[Biospecimen],
+)
+def list_biospecimens_in_container(
+    container_id: str,
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """List Biospecimens in a Container.
+
+    Requires: **VBR_READ_PUBLIC**"""
+
+    container_id = sanitize_identifier_string(container_id)
+    query = {"container_id": {"operator": "=", "value": container_id}}
+    rows = [
+        transform(c)
+        for c in client.vbr_client.query_view_rows(
+            view_name="biospecimens_details",
+            query=query,
+            limit=0,
+            offset=0,
+        )
+    ]
+    return rows
 
 
 # PUT /{container_id}/status - update status by name
@@ -248,10 +272,4 @@ def add_container_comment(
 
 
 # TODO
-# PUT /{container_id}/status - update status by status.name
-# PUT /{container_id}/location - update location by location_id
-# GET /{container_id}/history
-# GET /{container_id}/comments
-# POST /{container_id}/comments
-# TODO Later
 # POST / - create new container

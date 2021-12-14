@@ -3,7 +3,8 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
-from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
+from vbr.utils.barcode import (generate_barcode_string,
+                               sanitize_identifier_string)
 
 from ..dependencies import *
 from .models import Subject, SubjectPrivate, SubjectPrivateExtended, transform

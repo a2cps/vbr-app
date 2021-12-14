@@ -9,7 +9,8 @@ from pydantic import BaseModel
 from .config import get_settings
 from .dependencies import *
 from .internal import admin
-from .routers import biospecimens, containers, locations, projects, shipments, subjects
+from .routers import (biospecimens, containers, locations, projects, shipments,
+                      subjects)
 from .utils import use_route_names_as_operation_ids
 
 description = """

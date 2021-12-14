@@ -5,7 +5,11 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-__all__ = ["Biospecimen", "BiospecimenPrivate", "BiospecimenPrivateExtended"]
+__all__ = [
+    "Biospecimen",
+    "BiospecimenPrivate",
+    "BiospecimenPrivateExtended",
+]
 
 
 class Biospecimen(BaseModel):
@@ -22,15 +26,15 @@ class Biospecimen(BaseModel):
     unit: str
     subject_guid: UUID
     subject_id: str
-    bscp_time_blood_draw: datetime
-    bscp_time_centrifuge: datetime
-    bscp_aliquot_freezer_time: datetime
-    bscp_deg_of_hemolysis: float
-    bscp_phleb_by_init: str
-    bscp_procby_initials: str
-    bscp_protocol_dev: bool
-    bscp_comments: str
-    location: str
+    bscp_time_blood_draw: Optional[datetime]
+    bscp_time_centrifuge: Optional[datetime]
+    bscp_aliquot_freezer_time: Optional[datetime]
+    bscp_deg_of_hemolysis: Optional[float]
+    bscp_phleb_by_init: Optional[str]
+    bscp_procby_initials: Optional[str]
+    bscp_protocol_dev: Optional[bool]
+    bscp_comments: Optional[str]
+    location: Optional[str]
 
 
 class BiospecimenPrivate(Biospecimen):

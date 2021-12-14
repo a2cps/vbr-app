@@ -3,6 +3,7 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
+from vbr.utils.barcode import generate_barcode_string, sanitize_barcode_string
 
 from ..dependencies import *
 from .models import Subject, SubjectPrivate, SubjectPrivateExtended, transform
@@ -20,7 +21,7 @@ def list_subjects(
 ):
     """List Subjects.
 
-    Requires: **VBR_READ**"""
+    Requires: **VBR_READ_PUBLIC**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -45,7 +46,7 @@ def list_subjects_with_limited_phi(
 ):
     """List Subjects including limited PHI.
 
-    Requires: **VBR_READ_ANY**"""
+    Requires: **VBR_READ_ANY_PHI**"""
     query = {}
     rows = [
         transform(c)
@@ -68,7 +69,7 @@ def get_subject_by_id(
 ):
     """Get a Subject by ID.
 
-    Requires: **VBR_READ**"""
+    Requires: **VBR_READ_PUBLIC**"""
     query = {"subject_id": {"operator": "eq", "value": subject_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -89,7 +90,8 @@ def get_subject_by_guid(
 ):
     """Get a Subject by assigned GUID.
 
-    Requires: **VBR_READ**"""
+    Requires: **VBR_READ_PUBLIC**"""
+    subject_guid = sanitize_barcode_string(subject_guid)
     query = {"subject_guid": {"operator": "eq", "value": subject_guid}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -110,7 +112,7 @@ def get_subject_by_id_with_extended_phi(
 ):
     """Get a Subject with extended PHI by ID.
 
-    Requires: **VBR_READ_ANY**"""
+    Requires: **VBR_READ_ANY_PHI**"""
     query = {"subject_id": {"operator": "eq", "value": subject_id}}
     row = transform(
         client.vbr_client.query_view_rows(

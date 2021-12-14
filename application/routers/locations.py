@@ -3,6 +3,7 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
+from vbr.utils.barcode import generate_barcode_string, sanitize_barcode_string
 
 from ..dependencies import *
 from .models import Location, transform
@@ -20,7 +21,7 @@ def list_locations(
 ):
     """List Locations.
 
-    Requires: **VBR_READ**"""
+    Requires: **VBR_READ_PUBLIC**"""
     # TODO - build up from filters
     query = {}
     rows = [
@@ -44,7 +45,7 @@ def get_location_by_id(
 ):
     """Get a Location by ID.
 
-    Requires: **VBR_READ**"""
+    Requires: **VBR_READ_PUBLIC**"""
     query = {"location_id": {"operator": "eq", "value": location_id}}
     row = transform(
         client.vbr_client.query_view_rows(

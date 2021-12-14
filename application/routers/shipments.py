@@ -1,15 +1,23 @@
 """VBR Shipment routes"""
+from os import EX_CANTCREAT
 from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, tracking_id
-from vbr.utils.barcode import generate_barcode_string, sanitize_barcode_string
+from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from application.routers.models.actions.comment import Comment
+from application.routers.models.actions.shipment import CreateShipment
 
 from ..dependencies import *
-from .models import (Container, CreateComment, Event, SetShipmentStatus,
-                     Shipment, transform)
+from .models import (
+    Container,
+    CreateComment,
+    Event,
+    SetShipmentStatus,
+    Shipment,
+    transform,
+)
 
 router = APIRouter(
     prefix="/shipments",
@@ -37,6 +45,62 @@ def list_shipments(
         )
     ]
     return rows
+
+
+@router.post("/", dependencies=[Depends(vbr_write_public)], response_model=Shipment)
+def create_shipment(
+    body: CreateShipment = Body(...),
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Create a Shipment.
+
+    Requires: **VBR_WRITE_PUBLIC**"""
+    sender_name = body.sender_name
+    name = body.name
+    tracking_id = sanitize_identifier_string(body.tracking_id)
+    project_local_id = sanitize_identifier_string(body.project_id)
+    ship_to_local_id = sanitize_identifier_string(body.ship_to_location_id)
+    ship_from_local_id = sanitize_identifier_string(body.ship_from_location_id)
+    container_ids = [sanitize_identifier_string(c) for c in body.container_ids]
+    project_id = client.get_project_by_local_id(project_local_id).project_id
+    ship_to_id = client.get_location_by_local_id(ship_to_local_id).location_id
+    ship_from_id = client.get_location_by_local_id(ship_from_local_id).location_id
+    try:
+        containers = [client.get_container_by_local_id(c) for c in container_ids]
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="One or more container_ids could not be resolved: {0}".format(exc),
+        )
+    data = {
+        "name": name,
+        "sender_name": sender_name,
+        "tracking_id": tracking_id,
+        "project_id": project_id,
+        "ship_to_id": ship_to_id,
+        "ship_from_id": ship_from_id,
+    }
+    try:
+        shipment = client.create_shipment(**data)
+        # Ff containers are provided, associate them with Shipment
+        for container in containers:
+            try:
+                client.associate_container_with_shipment(container, shipment)
+            except Exception:
+                # TODO improve error handling
+                raise
+        # TODO Create EasyPost tracker
+        # Return created shipment
+        query = {"shipment_id": {"operator": "eq", "value": shipment.local_id}}
+        row = transform(
+            client.vbr_client.query_view_rows(
+                view_name="shipments_public", query=query, limit=1, offset=0
+            )[0]
+        )
+        return row
+    except Exception as exc:
+        raise
+        # raise HTTPException(status_code=500, detail=str(exc))
 
 
 @router.get(
@@ -70,7 +134,7 @@ def get_shipment_by_tracking_id(
     """Get a Shipment by parcel tracking ID.
 
     Requires: **VBR_READ_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     query = {"tracking_id": {"operator": "eq", "value": tracking_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -93,7 +157,7 @@ def get_containers_in_shipment(
     """Get Containers in a Shipment.
 
     Requires: **VBR_READ_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
     query = {"tracking_id": {"operator": "=", "value": tracking_id}}
     rows = [
@@ -122,7 +186,7 @@ def update_shipment_status(
     """Update a Shipment status
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     shipment = client.get_shipment_by_tracking_id(tracking_id)
     shipment = client.update_shipment_status_by_name(
         shipment, status_name=body.status.value, comment=body.comment
@@ -150,7 +214,7 @@ def get_events_for_shipment(
     """Get Events for a Shipment.
 
     Requires: **VBR_READ_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
     query = {"shipment_tracking_id": {"operator": "=", "value": tracking_id}}
     rows = [
@@ -178,7 +242,7 @@ def get_comments_for_shipment(
     """Get Comments for a Shipment.
 
     Requires: **VBR_READ_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
     query = {"shipment_tracking_id": {"operator": "=", "value": tracking_id}}
     rows = [
@@ -206,7 +270,7 @@ def add_shipment_comment(
     """Add a Comment to a Shipment.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     shipment = client.get_shipment_by_tracking_id(tracking_id)
     data_event = client.create_and_link(comment=body.comment, link_target=shipment)[0]
     return Comment(comment=data_event.comment, timestamp=data_event.event_ts)

@@ -3,7 +3,7 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
-from vbr.utils.barcode import generate_barcode_string, sanitize_barcode_string
+from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from ..dependencies import *
 from .models import Subject, SubjectPrivate, SubjectPrivateExtended, transform
@@ -91,7 +91,7 @@ def get_subject_by_guid(
     """Get a Subject by assigned GUID.
 
     Requires: **VBR_READ_PUBLIC**"""
-    subject_guid = sanitize_barcode_string(subject_guid)
+    subject_guid = sanitize_identifier_string(subject_guid)
     query = {"subject_guid": {"operator": "eq", "value": subject_guid}}
     row = transform(
         client.vbr_client.query_view_rows(

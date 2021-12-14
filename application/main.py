@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from .config import get_settings
 from .dependencies import *
 from .internal import admin
-from .routers import biospecimens, containers, locations, shipments, subjects
+from .routers import biospecimens, containers, locations, projects, shipments, subjects
 from .utils import use_route_names_as_operation_ids
 
 description = """
@@ -22,7 +22,7 @@ settings = get_settings()
 tags_metadata = [
     {
         "name": "biospecimens",
-        "description": "Biospecimens are samples collected from a Subject.",
+        "description": "Biospecimens are collected from Subjects.",
     },
     {
         "name": "collections",
@@ -37,27 +37,31 @@ tags_metadata = [
         "description": "Locations hold Containers.",
     },
     {
+        "name": "projects",
+        "description": "Projects are collections of Subjects.",
+    },
+    {
         "name": "shipments",
         "description": "Shipments convey Containers between Locations.",
     },
     {
         "name": "subjects",
-        "description": "Subjects are human participants in the project.",
+        "description": "Subjects are human participants in a Project.",
     },
     {
         "name": "admin",
-        "description": "These endpoints manage users and roles.",
+        "description": "Admin endpoints manage users and roles.",
     },
     {
         "name": "status",
-        "description": "These endpoints provide basic system health checks.",
+        "description": "Status endpoints provide basic system health checks.",
     },
 ]
 
 app = FastAPI(
     title="Virtual Biospecimen Repository API",
     description=description,
-    version="0.1.0",
+    version="0.5.0",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
     contact={
         "name": "A2CPS Open Source",
@@ -141,6 +145,7 @@ app.include_router(containers.router)
 app.include_router(locations.router)
 # app.include_router(organizations.router)
 # app.include_router(organization.router)
+app.include_router(projects.router)
 app.include_router(shipments.router)
 # app.include_router(shipment.router)
 app.include_router(subjects.router)

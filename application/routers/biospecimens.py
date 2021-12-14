@@ -3,7 +3,7 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, measurement
-from vbr.utils.barcode import generate_barcode_string, sanitize_barcode_string
+from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from application.routers.models.actions import trackingid
 
@@ -131,7 +131,7 @@ def get_biospecimen_by_id(
     """Get a Biospecimen by Tracking ID.
 
     Requires: **VBR_READ_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     query = {"tracking_id": {"operator": "eq", "value": tracking_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -155,8 +155,8 @@ def update_biospecimen_container(
     """Move a Biospecimen to another Container.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    biospecimen_id = sanitize_barcode_string(biospecimen_id)
-    biospecimen_id = sanitize_barcode_string(body.biospecimen_id)
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
+    biospecimen_id = sanitize_identifier_string(body.biospecimen_id)
     measurement = client.rebox_measurement_by_local_id(
         local_id=biospecimen_id, container_local_id=biospecimen_id
     )
@@ -183,7 +183,7 @@ def update_biospecimen_status(
     """Update Biospecimen status.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    biospecimen_id = sanitize_barcode_string(biospecimen_id)
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
     measurement = client.get_measurement_by_local_id(biospecimen_id)
     measurement = client.update_measurement_status_by_name(
         measurement, status_name=body.status.value, comment=body.comment
@@ -212,8 +212,8 @@ def update_biospecimen_tracking_id(
     """Update a Biospecimen tracking ID.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    biospecimen_id = sanitize_barcode_string(biospecimen_id)
-    tracking_id = sanitize_barcode_string(body.tracking_id)
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
+    tracking_id = sanitize_identifier_string(body.tracking_id)
     # TODO propagate comment
     measurement = client.get_measurement_by_local_id(biospecimen_id)
     measurement.tracking_id = tracking_id
@@ -240,7 +240,7 @@ def get_events_for_biospecimen(
     """Get Events for a Biospecimen.
 
     Requires: **VBR_READ_PUBLIC**"""
-    biospecimen_id = sanitize_barcode_string(biospecimen_id)
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
     query = {"biospecimen_id": {"operator": "=", "value": biospecimen_id}}
     rows = [
         transform(c)
@@ -267,7 +267,7 @@ def get_comments_for_biospecimen(
     """Get Comments for a Biospecimen.
 
     Requires: **VBR_READ_PUBLIC**"""
-    biospecimen_id = sanitize_barcode_string(biospecimen_id)
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
     # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
     query = {"biospecimen_id": {"operator": "=", "value": biospecimen_id}}
     rows = [
@@ -295,7 +295,7 @@ def add_biospecimen_comment(
     """Add a Comment to a Biospecimen.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    biospecimen_id = sanitize_barcode_string(biospecimen_id)
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
     measurement = client.get_measurement_by_local_id(biospecimen_id)
     data_event = client.create_and_link(comment=body.comment, link_target=measurement)[
         0

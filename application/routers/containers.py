@@ -3,12 +3,19 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api
-from vbr.utils.barcode import generate_barcode_string, sanitize_barcode_string
+from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from ..dependencies import *
-from .models import (Comment, Container, CreateComment, Event,
-                     SetContainerLocation, SetContainerStatus, SetTrackingId,
-                     transform)
+from .models import (
+    Comment,
+    Container,
+    CreateComment,
+    Event,
+    SetContainerLocation,
+    SetContainerStatus,
+    SetTrackingId,
+    transform,
+)
 
 router = APIRouter(
     prefix="/containers",
@@ -71,7 +78,7 @@ def get_container_by_tracking_id(
     """Get a Container by tracking ID.
 
     Requires: **VBR_READ_PUBLIC**"""
-    tracking_id = sanitize_barcode_string(tracking_id)
+    tracking_id = sanitize_identifier_string(tracking_id)
     query = {"container_tracking_id": {"operator": "eq", "value": tracking_id}}
     row = transform(
         client.vbr_client.query_view_rows(
@@ -122,8 +129,8 @@ def update_container_location(
     """Update a Container's Location.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    container_id = sanitize_barcode_string(container_id)
-    location_id = sanitize_barcode_string(body.location_id)
+    container_id = sanitize_identifier_string(container_id)
+    location_id = sanitize_identifier_string(body.location_id)
     container = client.get_container_by_local_id(container_id)
     container = client.relocate_container_by_local_id(
         local_id=container.local_id, location_local_id=location_id
@@ -150,8 +157,8 @@ def update_container_tracking_id(
     """Update a Container's tracking ID.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    container_id = sanitize_barcode_string(container_id)
-    tracking_id = sanitize_barcode_string(body.tracking_id)
+    container_id = sanitize_identifier_string(container_id)
+    tracking_id = sanitize_identifier_string(body.tracking_id)
     # TODO propagate comment
     container = client.get_container_by_local_id(container_id)
     container.tracking_id = tracking_id
@@ -178,7 +185,7 @@ def get_events_for_container(
     """Get Events for a Container.
 
     Requires: **VBR_READ_PUBLIC**"""
-    container_id = sanitize_barcode_string(container_id)
+    container_id = sanitize_identifier_string(container_id)
     # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
     query = {"container_id": {"operator": "=", "value": container_id}}
     rows = [
@@ -206,7 +213,7 @@ def get_comments_for_container(
     """Get Comments for a Container.
 
     Requires: **VBR_READ_PUBLIC**"""
-    container_id = sanitize_barcode_string(container_id)
+    container_id = sanitize_identifier_string(container_id)
     # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
     query = {"container_id": {"operator": "=", "value": container_id}}
     rows = [
@@ -234,7 +241,7 @@ def add_container_comment(
     """Add a Comment to a Container.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    container_id = sanitize_barcode_string(container_id)
+    container_id = sanitize_identifier_string(container_id)
     container = client.get_container_by_local_id(container_id)
     data_event = client.create_and_link(comment=body.comment, link_target=container)[0]
     return Comment(comment=data_event.comment, timestamp=data_event.event_ts)

@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from .config import get_settings
 from .dependencies import *
 from .internal import admin
-from .routers import (biospecimens, containers, locations, projects, shipments,
-                      subjects)
+from .routers import (biospecimens, container_types, containers, locations,
+                      organizations, projects, shipments, subjects, units)
 from .utils import use_route_names_as_operation_ids
 
 description = """
@@ -25,17 +25,25 @@ tags_metadata = [
         "name": "biospecimens",
         "description": "Biospecimens are collected from Subjects.",
     },
-    {
-        "name": "collections",
-        "description": "Collections are virtual groupings of Biospecimens.",
-    },
+    # {
+    #     "name": "collections",
+    #     "description": "Collections are virtual groupings of Biospecimens.",
+    # },
     {
         "name": "containers",
         "description": "Containers hold Biospecimens.",
     },
     {
+        "name": "container_types",
+        "description": "Containers have a ContainerType.",
+    },
+    {
         "name": "locations",
         "description": "Locations hold Containers.",
+    },
+    {
+        "name": "organizations",
+        "description": "Organizations hold Locations.",
     },
     {
         "name": "projects",
@@ -48,6 +56,10 @@ tags_metadata = [
     {
         "name": "subjects",
         "description": "Subjects are human participants in a Project.",
+    },
+    {
+        "name": "units",
+        "description": "Biosamples have a Unit.",
     },
     {
         "name": "admin",
@@ -143,13 +155,13 @@ async def status_auth_check() -> dict:
 # User-mode routes
 app.include_router(biospecimens.router)
 app.include_router(containers.router)
+app.include_router(container_types.router)
 app.include_router(locations.router)
-# app.include_router(organizations.router)
-# app.include_router(organization.router)
+app.include_router(organizations.router)
 app.include_router(projects.router)
 app.include_router(shipments.router)
-# app.include_router(shipment.router)
 app.include_router(subjects.router)
+app.include_router(units.router)
 # Admin-only routes.
 # All requires VBR_ADMIN role
 app.include_router(admin.router)

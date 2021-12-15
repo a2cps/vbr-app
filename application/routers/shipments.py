@@ -6,12 +6,13 @@ from vbr.api import VBR_Api, tracking_id
 from vbr.utils.barcode import (generate_barcode_string,
                                sanitize_identifier_string)
 
+from application.routers import container_types
 from application.routers.models.actions.comment import Comment
 from application.routers.models.actions.shipment import CreateShipment
 
 from ..dependencies import *
-from .models import (Container, CreateComment, Event, SetShipmentStatus,
-                     Shipment, transform)
+from .models import (AddContainer, Container, CreateComment, Event,
+                     SetShipmentStatus, Shipment, transform)
 from .utils import parameters_to_query
 
 router = APIRouter(
@@ -186,6 +187,75 @@ def get_containers_in_shipment(
     return rows
 
 
+# PUT /tracking/{tracking_id}/containers - add a container to a shipment
+@router.put(
+    "/tracking/{tracking_id}/container",
+    dependencies=[Depends(vbr_write_public)],
+    response_model=List[Container],
+)
+def add_container_to_shipment(
+    tracking_id: str,
+    body: AddContainer = Body(...),
+    client: Tapis = Depends(vbr_admin_client),
+):
+    """Add a Container to a Shipment.
+
+    Requires: **VBR_WRITE_PUBLIC**"""
+    tracking_id = sanitize_identifier_string(tracking_id)
+    container_id = sanitize_identifier_string(body.container_id)
+    shipment = client.get_shipment_by_tracking_id(tracking_id)
+    location = client.get_location(shipment.ship_from)
+    container = client.get_container_by_local_id(container_id)
+    client.associate_container_with_shipment(container, shipment)
+    client.relocate_container(container, location, sync=False)
+
+    # Display updated list of containers associated with shipment
+    query = {"tracking_id": {"operator": "=", "value": tracking_id}}
+    rows = [
+        transform(c)
+        for c in client.vbr_client.query_view_rows(
+            view_name="containers_public",
+            query=query,
+            limit=0,
+            offset=0,
+        )
+    ]
+    return rows
+
+
+# DELETE /tracking/{tracking_id}/containers/{container_id} - remove a container from a shipment
+@router.delete(
+    "/tracking/{tracking_id}/container/{container_id}",
+    dependencies=[Depends(vbr_write_public)],
+    response_model=List[Container],
+)
+def remove_container_from_shipment(
+    tracking_id: str,
+    container_id: str,
+    client: Tapis = Depends(vbr_admin_client),
+):
+    """Remove a Container from a Shipment.
+
+    Requires: **VBR_WRITE_PUBLIC**"""
+    tracking_id = sanitize_identifier_string(tracking_id)
+    container_id = sanitize_identifier_string(container_id)
+    container = client.get_container_by_local_id(container_id)
+    client.disassociate_container_from_shipment(container)
+
+    # Display updated list of containers associated with shipment
+    query = {"tracking_id": {"operator": "=", "value": tracking_id}}
+    rows = [
+        transform(c)
+        for c in client.vbr_client.query_view_rows(
+            view_name="containers_public",
+            query=query,
+            limit=0,
+            offset=0,
+        )
+    ]
+    return rows
+
+
 # PUT /tracking/{tracking_id}/status - update status by name
 @router.put(
     "/tracking/{tracking_id}/status",
@@ -199,6 +269,10 @@ def update_shipment_status(
 ):
     """Update a Shipment status
 
+    Setting `relocate_containers=true` in the message body
+    when event name is `received` will move all containers
+    associated with the shipment to the shipment destination.
+
     Requires: **VBR_WRITE_PUBLIC**"""
     tracking_id = sanitize_identifier_string(tracking_id)
     shipment = client.get_shipment_by_tracking_id(tracking_id)
@@ -206,6 +280,11 @@ def update_shipment_status(
         shipment, status_name=body.status.value, comment=body.comment
     )
     # TODO - take any requisite actions associated with specific statuses
+    if body.status.value == "received" and body.relocate_containers is True:
+        to_location = client.get_location(shipment.ship_to)
+        containers = client.get_containers_for_shipment(shipment)
+        for container in containers:
+            client.relocate_container(container, to_location, sync=False)
     query = {"shipment_id": {"operator": "eq", "value": shipment.local_id}}
     row = transform(
         client.vbr_client.query_view_rows(

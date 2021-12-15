@@ -10,19 +10,23 @@ class BiospecimenStatuses(Enum):
     SPOILED = "spoiled"
     DEPLETED = "depleted"
     LOST = "lost"
+    DESTROYED = "destroyed"
 
 
 class ContainerStatuses(Enum):
+    CREATED = "created"
     PRESENT = "present"
     DAMAGED = "damaged"
     MISSING = "missing"
     LOST = "lost"
+    DESTROYED = "destroyed"
 
 
 class ShipmentStatuses(Enum):
     CREATED = "created"
     SHIPPED = "shipped"
     RECEIVED = "received"
+    PROCESSED = "processed"
     DELAYED = "delayed"
     LOST = "lost"
 
@@ -39,4 +43,5 @@ class SetContainerStatus(BaseModel):
 
 class SetShipmentStatus(BaseModel):
     status: ShipmentStatuses
+    relocate_containers: Optional[bool] = False
     comment: Optional[str]

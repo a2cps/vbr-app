@@ -6,10 +6,12 @@ from vbr.api import VBR_Api
 from vbr.utils.barcode import (generate_barcode_string,
                                sanitize_identifier_string)
 
+from application.routers.models.actions import trackingid
 from application.routers.models.biospecimen import Biospecimen
 
 from ..dependencies import *
-from .models import (Biospecimen, Comment, Container, CreateComment, Event,
+from .models import (Biospecimen, Comment, Container, CreateComment,
+                     CreateContainer, Event, GenericResponse,
                      SetContainerLocation, SetContainerStatus, SetTrackingId,
                      transform)
 from .utils import parameters_to_query
@@ -20,7 +22,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-
+# GET /
 @router.get(
     "/", dependencies=[Depends(vbr_read_public)], response_model=List[Container]
 )
@@ -60,6 +62,59 @@ def list_containers(
     return rows
 
 
+# POST /
+@router.post("/", dependencies=[Depends(vbr_write_public)], response_model=Container)
+def create_container(
+    body: CreateContainer = Body(...),
+    client: Tapis = Depends(vbr_admin_client),
+):
+    """Create a new Container.
+
+    Requires: **VBR_WRITE_PUBLIC**
+    """
+    tracking_id = vbr.utils.sanitize_identifier_string(body.tracking_id)
+    if tracking_id == "auto":
+        tracking_id = vbr.utils.generate_barcode_string()
+
+    container_type_id = vbr.utils.sanitize_identifier_string(body.container_type_id)
+    try:
+        container_type = client.get_container_type_by_local_id(container_type_id)
+        contid = container_type.container_type_id
+    except Exception:
+        raise HTTPException(
+            status_code=422,
+            detail="Unknown container_type {0}".format(container_type_id),
+        )
+
+    location_id = vbr.utils.sanitize_identifier_string(body.location_id)
+    if location_id is None:
+        locid = 0
+    else:
+        try:
+            location = client.get_location_by_local_id(location_id)
+            locid = location_id.location_id
+        except Exception:
+            raise HTTPException(
+                status_code=422,
+                detail="Unknown location {0}".format(location_id),
+            )
+
+    container = client.create_container(
+        tracking_id=tracking_id,
+        project_id=0,
+        location_id=locid,
+        container_type_id=contid,
+    )
+    query = {"container_id": {"operator": "eq", "value": container.local_id}}
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="containers_public", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
+
+
+# GET /{container_id}
 @router.get(
     "/{container_id}", dependencies=[Depends(vbr_read_public)], response_model=Container
 )
@@ -77,6 +132,23 @@ def get_container_by_id(
         )[0]
     )
     return row
+
+
+# DELETE /{container_id}
+@router.delete(
+    "/{container_id}", dependencies=[Depends(vbr_admin)], response_model=GenericResponse
+)
+def delete_container(
+    container_id: str,
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Delete a Container.
+
+    Requires: **VBR_ADMIN**"""
+    container_id = vbr.utils.sanitize_identifier_string(container_id)
+    container = client.get_container_by_local_id(container_id)
+    client.vbr_client.delete_row(container)
+    return {"message": "Container deleted"}
 
 
 @router.get(

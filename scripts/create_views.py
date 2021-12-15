@@ -52,7 +52,9 @@ def main(arg_vals):
     child_views = []
     for view_file in view_sql_files:
         if arg_vals["view_names"] != []:
-            if view_file not in arg_vals["view_names"]:
+            if view_file not in arg_vals["view_names"] or not view_file.endswith(
+                ".sql"
+            ):
                 continue
         raw_sql = load_sql(os.path.join(VIEWS_PATH, view_file), tenant_id, False)
         data = construct_view(view_file, raw_sql)

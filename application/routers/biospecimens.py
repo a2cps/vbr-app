@@ -3,23 +3,17 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, measurement
-from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
+from vbr.utils.barcode import (generate_barcode_string,
+                               sanitize_identifier_string)
 
-from application.routers.models.actions import trackingid
+from application.routers.models.actions import comment, trackingid
 
 from ..dependencies import *
-from .models import (
-    Biospecimen,
-    BiospecimenPrivate,
-    BiospecimenPrivateExtended,
-    Comment,
-    CreateComment,
-    Event,
-    SetBiospecimenStatus,
-    SetContainer,
-    SetTrackingId,
-    transform,
-)
+from .models import (Biospecimen, BiospecimenPrivate,
+                     BiospecimenPrivateExtended, Comment, CreateComment, Event,
+                     GenericResponse, PartitionBiospecimen,
+                     SetBiospecimenStatus, SetContainer, SetTrackingId,
+                     transform)
 from .utils import parameters_to_query
 
 router = APIRouter(
@@ -86,6 +80,7 @@ def list_biospecimens(
     return rows
 
 
+# GET /private
 @router.get(
     "/private",
     dependencies=[Depends(vbr_read_limited_phi)],
@@ -111,6 +106,7 @@ def list_biospecimens_with_limited_phi(
     return rows
 
 
+# GET /{biospecimen_id}
 @router.get(
     "/{biospecimen_id}",
     dependencies=[Depends(vbr_read_public)],
@@ -132,6 +128,56 @@ def get_biospecimen_by_id(
     return row
 
 
+# POST /{biospecimen_id}/partition
+@router.post(
+    "/{biospecimen_id}/partition",
+    dependencies=[Depends(vbr_write_public)],
+    response_model=Biospecimen,
+)
+def partition_biospecimen(
+    biospecimen_id: str,
+    body: PartitionBiospecimen = Body(...),
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Partition a Biospecimen into two Biospecimens.
+
+    Requiress: **VBR_WRITE_PUBLIC**
+    """
+    biospecimen_id = vbr.utils.sanitize_identifier_string(biospecimen_id)
+    new_tracking_id = vbr.utils.sanitize_identifier_string(body.tracking_id)
+    measurement = client.get_measurement_by_local_id(biospecimen_id)
+    new_measurement = client.partition_measurement(
+        measurement, tracking_id=new_tracking_id, comment=comment
+    )
+    query = {"biospecimen_id": {"operator": "eq", "value": new_measurement.local_id}}
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="biospecimens_details", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
+
+
+# DELETE /{biospecimen_id}
+@router.delete(
+    "/{biospecimen_id}/partition",
+    dependencies=[Depends(vbr_admin)],
+    response_model=GenericResponse,
+)
+def delete_biospecimen(
+    biospecimen_id: str,
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Delete a Biospecimen from the system.
+
+    Requiress: **VBR_ADMIN**
+    """
+    biospecimen_id = vbr.utils.sanitize_identifier_string(biospecimen_id)
+    measurement = client.get_measurement_by_local_id(biospecimen_id)
+    client.vbr_client.delete_row(measurement)
+    return {"message": "Biospecimen deleted"}
+
+
 @router.get(
     "/{biospecimen_id}/private",
     dependencies=[Depends(vbr_read_any_phi)],
@@ -144,6 +190,7 @@ def get_biospecimen_by_id_with_extended_phi(
     """Get a Biospecimen with extended PHI by ID.
 
     Requires: **VBR_READ_ANY_PHI**"""
+    biospecimen_id = vbr.utils.sanitize_identifier_string(biospecimen_id)
     query = {"biospecimen_id": {"operator": "eq", "value": biospecimen_id}}
     row = transform(
         client.vbr_client.query_view_rows(

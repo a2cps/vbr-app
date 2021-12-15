@@ -1,4 +1,5 @@
 """Administrative routes"""
+from datetime import datetime
 from enum import Enum
 
 from fastapi import APIRouter, Body, Depends, HTTPException
@@ -39,6 +40,22 @@ class Role(Enum):
 "VBR_READ_ANY", "VBR_READ_ANY_PHI", "VBR_READ_LIMITED_PHI", "VBR_READ_PUBLIC", "VBR_USER", "VBR_WRITE_PUBLIC"
 
 
+class TapisRole(BaseModel):
+    name: str
+    description: str
+    owner: str
+    # updated: datetime
+    # updatedby: str
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "TACO_USER",
+                "description": "Default user role",
+                "owner": "tacobot",
+            }
+        }
+
+
 class User(BaseModel):
     username: str
     name: str
@@ -73,12 +90,34 @@ def build_user(username: str, client: Tapis) -> User:
 
 
 @router.get(
+    "/roles",
+    dependencies=[Depends(tapis_client), Depends(vbr_admin)],
+    response_model=List[TapisRole],
+)
+def list_roles(client: Tapis = Depends(tapis_client)):
+    """List VBR roles."""
+    role_names = client.sk.getRoleNames(tenant=settings.tapis_tenant_id).names
+    roles = []
+    for rn in role_names:
+        if rn in [e.value for e in Role]:
+            role = client.sk.getRoleByName(tenant=settings.tapis_tenant_id, roleName=rn)
+            roles.append(
+                {
+                    "name": role.name,
+                    "description": role.description,
+                    "owner": role.owner,
+                }
+            )
+    return roles
+
+
+@router.get(
     "/users",
     dependencies=[Depends(tapis_client), Depends(vbr_admin)],
     response_model=List[User],
 )
 def list_users(client: Tapis = Depends(tapis_client)):
-    """List authorized Users."""
+    """List authorized users."""
     usernames = client.sk.getUsersWithRole(
         tenant=settings.tapis_tenant_id, roleName="VBR_USER"
     ).names
@@ -92,7 +131,7 @@ def list_users(client: Tapis = Depends(tapis_client)):
     response_model=User,
 )
 def add_user(body: AddUser = Body(...), client: Tapis = Depends(tapis_client)):
-    """Add an authorized User."""
+    """Add an authorized user."""
     try:
         client.sk.grantRole(
             tenant=settings.tapis_tenant_id,
@@ -110,7 +149,7 @@ def add_user(body: AddUser = Body(...), client: Tapis = Depends(tapis_client)):
     response_model=User,
 )
 def get_user(username: str, client: Tapis = Depends(tapis_client)):
-    """Get profile of an authorized User."""
+    """Get profile of an authorized user."""
     if (
         "VBR_USER"
         in client.sk.getUserRoles(user=username, tenant=settings.tapis_tenant_id).names
@@ -127,7 +166,7 @@ def get_user(username: str, client: Tapis = Depends(tapis_client)):
     response_model=List[Role],
 )
 def list_user_roles(username: str, client: Tapis = Depends(tapis_client)):
-    """List roles for an authorized User."""
+    """List roles for an authorized user."""
     roles = [
         r
         for r in client.sk.getUserRoles(
@@ -149,7 +188,7 @@ def grant_user_role(
     role: GrantableRole = "VBR_READ_PUBLIC",
     client: Tapis = Depends(tapis_client),
 ):
-    """Grant a role to a User."""
+    """Grant a role to a user."""
     client.sk.grantRole(
         tenant=settings.tapis_tenant_id, user=username, roleName=role.value
     )
@@ -171,9 +210,9 @@ def grant_user_role(
     response_model=List[Role],
 )
 def revoke_user_role(username: str, role: Role, client: Tapis = Depends(tapis_client)):
-    """Revoke a role from a User.
+    """Revoke a role from a user.
 
-    Note that inherited roles (such as VBR_USER) cannot be revoked using this method.
+    Note: Inherited roles (such as VBR_USER) cannot be revoked using this method.
     """
     client.sk.revokeUserRole(
         tenant=settings.tapis_tenant_id, user=username, roleName=role.value

@@ -3,16 +3,23 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, measurement
-from vbr.utils.barcode import (generate_barcode_string,
-                               sanitize_identifier_string)
+from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from application.routers.models.actions import trackingid
 
 from ..dependencies import *
-from .models import (Biospecimen, BiospecimenPrivate,
-                     BiospecimenPrivateExtended, Comment, CreateComment, Event,
-                     SetBiospecimenStatus, SetContainer, SetTrackingId,
-                     transform)
+from .models import (
+    Biospecimen,
+    BiospecimenPrivate,
+    BiospecimenPrivateExtended,
+    Comment,
+    CreateComment,
+    Event,
+    SetBiospecimenStatus,
+    SetContainer,
+    SetTrackingId,
+    transform,
+)
 from .utils import parameters_to_query
 
 router = APIRouter(
@@ -39,7 +46,7 @@ def list_biospecimens(
     status: Optional[str] = None,
     unit: Optional[str] = None,
     subject_id: Optional[str] = None,
-    # subject_guid: Optional[str] = None,
+    subject_guid: Optional[str] = None,
     bscp_procby_initials: Optional[str] = None,
     bscp_protocol_dev: Optional[bool] = None,
     client: VBR_Api = Depends(vbr_admin_client),
@@ -63,8 +70,7 @@ def list_biospecimens(
         status=status,
         unit=unit,
         subject_id=subject_id,
-        # Subject GUID searches arent working - I think this is a PgREST issue
-        # subject_guid=subject_guid,
+        subject_guid=subject_guid,
         bscp_procby_initials=bscp_procby_initials,
         bscp_protocol_dev=bscp_protocol_dev,
     )

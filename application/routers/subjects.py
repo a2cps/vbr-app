@@ -8,6 +8,7 @@ from vbr.utils.barcode import (generate_barcode_string,
 
 from ..dependencies import *
 from .models import Subject, SubjectPrivate, SubjectPrivateExtended, transform
+from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/subjects",
@@ -18,13 +19,22 @@ router = APIRouter(
 
 @router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Subject])
 def list_subjects(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    # See views/subjects_public.sql for possible filter names
+    subject_id: Optional[str] = None,
+    subject_guid: Optional[str] = None,
+    project: Optional[str] = None,
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Subjects.
 
+    Refine results using filter parameters.
+
     Requires: **VBR_READ_PUBLIC**"""
     # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        subject_id=subject_id, subject_guid=subject_guid, project=project
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(
@@ -37,13 +47,15 @@ def list_subjects(
     return rows
 
 
+# TODO - add filter on sex, but not until the translation from redcap int to string is done in SQL
 @router.get(
     "/private",
     dependencies=[Depends(vbr_read_limited_phi)],
     response_model=List[SubjectPrivate],
 )
 def list_subjects_with_limited_phi(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Subjects including limited PHI.
 
@@ -102,6 +114,7 @@ def get_subject_by_guid(
     return row
 
 
+# TODO - add filter on protected fields, but not until the translation from redcap int to string is done in SQL
 @router.get(
     "/{subject_id}/private",
     dependencies=[Depends(vbr_read_any_phi)],

@@ -12,6 +12,7 @@ from ..dependencies import *
 from .models import (Biospecimen, Comment, Container, CreateComment, Event,
                      SetContainerLocation, SetContainerStatus, SetTrackingId,
                      transform)
+from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/containers",
@@ -24,13 +25,29 @@ router = APIRouter(
     "/", dependencies=[Depends(vbr_read_public)], response_model=List[Container]
 )
 def list_containers(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    # See views/containers_public.sql for possible filter names
+    container_id: Optional[str] = None,
+    container_tracking_id: Optional[str] = None,
+    container_type: Optional[str] = None,
+    location: Optional[str] = None,
+    status: Optional[str] = None,
+    tracking_id: Optional[str] = None,
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Containers.
 
+    Refine results using filter parameters.
+
     Requires: **VBR_READ_PUBLIC**"""
-    # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        container_id=container_id,
+        container_tracking_id=container_tracking_id,
+        container_type=container_type,
+        location=location,
+        status=status,
+        tracking_id=tracking_id,
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(

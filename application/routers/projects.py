@@ -8,6 +8,7 @@ from vbr.utils.barcode import (generate_barcode_string,
 
 from ..dependencies import *
 from .models import Project, transform
+from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/projects",
@@ -18,13 +19,26 @@ router = APIRouter(
 
 @router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Project])
 def list_projects(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    # See views/projects_public.sql for possible filter names
+    project_id: Optional[str] = None,
+    name: Optional[str] = None,
+    abbreviation: Optional[str] = None,
+    description: Optional[str] = None,
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Projects.
 
+    Refine results using filter parameters.
+
     Requires: **VBR_READ_PUBLIC**"""
     # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        project_id=project_id,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(

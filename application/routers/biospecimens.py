@@ -13,6 +13,7 @@ from .models import (Biospecimen, BiospecimenPrivate,
                      BiospecimenPrivateExtended, Comment, CreateComment, Event,
                      SetBiospecimenStatus, SetContainer, SetTrackingId,
                      transform)
+from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/biospecimens",
@@ -25,13 +26,48 @@ router = APIRouter(
     "/", dependencies=[Depends(vbr_read_public)], response_model=List[Biospecimen]
 )
 def list_biospecimens(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    # See views/biospecimens_details.sql for possible filter names
+    biospecimen_id: Optional[str] = None,
+    tracking_id: Optional[str] = None,
+    biospecimen_type: Optional[str] = None,
+    collection_id: Optional[str] = None,
+    collection_tracking_id: Optional[str] = None,
+    container_id: Optional[str] = None,
+    container_tracking_id: Optional[str] = None,
+    location: Optional[str] = None,
+    project: Optional[str] = None,
+    status: Optional[str] = None,
+    unit: Optional[str] = None,
+    subject_id: Optional[str] = None,
+    # subject_guid: Optional[str] = None,
+    bscp_procby_initials: Optional[str] = None,
+    bscp_protocol_dev: Optional[bool] = None,
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Biospecimens.
 
+    Refine results using filter parameters.
+
     Requires: **VBR_READ_PUBLIC**"""
-    # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        biospecimen_id=biospecimen_id,
+        tracking_id=tracking_id,
+        biospecimen_type=biospecimen_type,
+        collection_id=collection_id,
+        collection_tracking_id=collection_tracking_id,
+        container_id=container_id,
+        container_tracking_id=container_tracking_id,
+        location=location,
+        project=project,
+        status=status,
+        unit=unit,
+        subject_id=subject_id,
+        # Subject GUID searches arent working - I think this is a PgREST issue
+        # subject_guid=subject_guid,
+        bscp_procby_initials=bscp_procby_initials,
+        bscp_protocol_dev=bscp_protocol_dev,
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(

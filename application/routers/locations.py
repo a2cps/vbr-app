@@ -8,6 +8,7 @@ from vbr.utils.barcode import (generate_barcode_string,
 
 from ..dependencies import *
 from .models import Location, transform
+from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/locations",
@@ -18,13 +19,25 @@ router = APIRouter(
 
 @router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Location])
 def list_locations(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    location_id: Optional[str] = None,
+    display_name: Optional[str] = None,
+    city: Optional[str] = None,
+    organization: Optional[str] = None,
+    # See views/locations_public.sql for possible filter names
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Locations.
 
+    Refine results using filter parameters.
+
     Requires: **VBR_READ_PUBLIC**"""
-    # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        location_id=location_id,
+        display_name=display_name,
+        city=city,
+        organization=organization,
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(

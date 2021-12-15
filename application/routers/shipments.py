@@ -1,5 +1,4 @@
 """VBR Shipment routes"""
-from os import EX_CANTCREAT
 from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
@@ -13,6 +12,7 @@ from application.routers.models.actions.shipment import CreateShipment
 from ..dependencies import *
 from .models import (Container, CreateComment, Event, SetShipmentStatus,
                      Shipment, transform)
+from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/shipments",
@@ -23,13 +23,32 @@ router = APIRouter(
 
 @router.get("/", dependencies=[Depends(vbr_read_public)], response_model=List[Shipment])
 def list_shipments(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+    # See views/shipments_public.sql for possible filter names
+    shipment_id: Optional[str] = None,
+    tracking_id: Optional[str] = None,
+    shipment_name: Optional[str] = None,
+    sender_name: Optional[str] = None,
+    project_name: Optional[str] = None,
+    ship_from: Optional[str] = None,
+    ship_to: Optional[str] = None,
+    status: Optional[str] = None,
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
     """List Shipments.
 
+    Refine results using filter parameters.
+
     Requires: **VBR_READ_PUBLIC**"""
-    # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        shipment_id=shipment_id,
+        tracking_id=tracking_id,
+        shipment_name=shipment_name,
+        sender_name=sender_name,
+        ship_from=ship_from,
+        ship_to=ship_to,
+        status=status,
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(

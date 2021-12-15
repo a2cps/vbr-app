@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from .config import get_settings
 from .dependencies import *
-from .internal import admin
+from .internal import admin, auth
 from .routers import (biospecimens, container_types, containers, locations,
                       organizations, projects, shipments, subjects, units)
 from .utils import use_route_names_as_operation_ids
@@ -21,6 +21,10 @@ Virtual Biospecimen API helps manage Biospecimen logistics and processing.
 settings = get_settings()
 
 tags_metadata = [
+    {
+        "name": "auth",
+        "description": "Authenticate using TACC credentials.",
+    },
     {
         "name": "biospecimens",
         "description": "Biospecimens are collected from Subjects.",
@@ -153,6 +157,7 @@ async def status_auth_check() -> dict:
 
 
 # User-mode routes
+app.include_router(auth.router)
 app.include_router(biospecimens.router)
 app.include_router(containers.router)
 app.include_router(container_types.router)

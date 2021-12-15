@@ -5,7 +5,7 @@ SELECT
     container_type.name as container_type,
     location.display_name as location,
     status.name as status,
-    ship.tracking_id,
+    ship.tracking_id
 FROM a2cpsdev.container
 INNER JOIN a2cpsdev.container_type
 	ON container_type.container_type_id = container.container_type

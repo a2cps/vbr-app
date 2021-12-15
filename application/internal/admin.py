@@ -36,6 +36,9 @@ class Role(Enum):
     VBR_WRITE_PUBLIC = "VBR_WRITE_PUBLIC"
 
 
+"VBR_READ_ANY", "VBR_READ_ANY_PHI", "VBR_READ_LIMITED_PHI", "VBR_READ_PUBLIC", "VBR_USER", "VBR_WRITE_PUBLIC"
+
+
 class User(BaseModel):
     username: str
     name: str
@@ -130,8 +133,9 @@ def list_user_roles(username: str, client: Tapis = Depends(tapis_client)):
         for r in client.sk.getUserRoles(
             tenant=settings.tapis_tenant_id, user=username
         ).names
-        if "VBR" in r
+        if r in [e.value for e in Role]
     ]
+    roles = sorted(roles)
     return roles
 
 
@@ -155,8 +159,9 @@ def grant_user_role(
         for r in client.sk.getUserRoles(
             tenant=settings.tapis_tenant_id, user=username
         ).names
-        if "VBR" in r
+        if r in [e.value for e in Role]
     ]
+    roles = sorted(roles)
     return roles
 
 
@@ -178,6 +183,7 @@ def revoke_user_role(username: str, role: Role, client: Tapis = Depends(tapis_cl
         for r in client.sk.getUserRoles(
             tenant=settings.tapis_tenant_id, user=username
         ).names
-        if "VBR" in r
+        if r in [e.value for e in Role]
     ]
+    roles = sorted(roles)
     return roles

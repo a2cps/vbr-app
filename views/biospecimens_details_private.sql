@@ -1,4 +1,5 @@
 SELECT
+    DISTINCT 
     biospecimens_base._measurement_id,
     biospecimens_base.biospecimen_id,
     biospecimens_base.tracking_id,

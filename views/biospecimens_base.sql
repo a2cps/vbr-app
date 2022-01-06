@@ -1,4 +1,5 @@
 SELECT
+    DISTINCT
     measurement.measurement_id AS _measurement_id,
     measurement.local_id AS biospecimen_id,
     measurement.tracking_id AS tracking_id,

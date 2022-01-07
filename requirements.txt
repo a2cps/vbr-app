@@ -5,3 +5,4 @@ gunicorn
 uvicorn[standard]
 tapipy==1.0.3
 git+https://github.com/a2cps/python-vbr.git@main#egg=python_vbr
+python-multipart

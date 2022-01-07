@@ -9,12 +9,23 @@ from pydantic import BaseModel
 from .config import get_settings
 from .dependencies import *
 from .internal import admin, auth
-from .routers import (biospecimens, container_types, containers, locations,
-                      organizations, projects, shipments, subjects, units)
+from .routers import (
+    biospecimens,
+    container_types,
+    containers,
+    locations,
+    organizations,
+    projects,
+    shipments,
+    subjects,
+    units,
+)
 from .utils import use_route_names_as_operation_ids
 
 description = """
-Virtual Biospecimen API helps manage Biospecimen logistics and processing.
+This API manages Biospecimen logistics and processing.
+
+You are viewing the interactive documenation. Detailed reference docs are [also available](../redoc). 
 
 """
 
@@ -76,14 +87,10 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="Virtual Biospecimen Repository API",
+    title="A2CPS Virtual Biospecimen Repository API",
     description=description,
-    version="0.5.0",
+    version="0.0.9",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
-    contact={
-        "name": "A2CPS Open Source",
-        "email": "a2cps@tacc.cloud",
-    },
     debug=settings.app_debug,
     openapi_tags=tags_metadata,
 )

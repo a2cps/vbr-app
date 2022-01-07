@@ -5,7 +5,8 @@ from typing import List, Optional
 
 import jwt
 import vbr
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tapipy.errors import BaseTapyException
 from tapipy.tapis import Tapis
 from vbr.hashable import picklecache
@@ -13,6 +14,8 @@ from vbr.hashable import picklecache
 from .config import get_settings
 
 settings = get_settings()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 async def limit_offset(offset: int = 0, limit: int = settings.app_default_page_size):
@@ -50,21 +53,8 @@ def vbr_admin_client(client: Tapis = Depends(tapis_admin_client)):
     return vbr_client
 
 
-async def tapis_token(x_tapis_token: Optional[str] = Header(None)):
-    """Returns current Tapis access token."""
-    # Read from ENV to support local testing
-    if os.environ.get("X_TAPIS_TOKEN", None) is not None:
-        x_tapis_token = os.environ.get("X_TAPIS_TOKEN")
-    if x_tapis_token is None:
-        raise HTTPException(status_code=401, detail="X-Tapis-Token header required")
-    else:
-        try:
-            # Tapis can validates JWT on its own but it's cheaper to do it early
-            jwt.decode(x_tapis_token, options={"verify_signature": False})
-        except jwt.exceptions.DecodeError:
-            raise HTTPException(status_code=401, detail="X-Tapis-Token was not valid")
-        except jwt.exceptions.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="X-Tapis-Token has expired")
+async def tapis_token(x_tapis_token: str = Depends(oauth2_scheme)):
+    """Returns current Tapis token using OAuth2 scheme dependency."""
     return x_tapis_token
 
 
@@ -74,7 +64,8 @@ def tapis_client(x_tapis_token: str = Depends(tapis_token)) -> Tapis:
         client = _client(x_tapis_token)
     except BaseTapyException as exc:
         raise HTTPException(
-            status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token was not valid: {0}".format(exc),
         )
     return client
 
@@ -85,7 +76,8 @@ def tapis_user(token: str = Depends(tapis_token)):
         t = _client(token)
     except BaseTapyException as exc:
         raise HTTPException(
-            status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token was not valid: {0}".format(exc),
         )
     return t.authenticator.get_userinfo().username
 
@@ -96,14 +88,15 @@ def tapis_roles(user: str = Depends(tapis_user), token: str = Depends(tapis_toke
         t = _client(token)
     except BaseTapyException as exc:
         raise HTTPException(
-            status_code=401, detail="X-Tapis-Token was not valid: {0}".format(exc)
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token was not valid: {0}".format(exc),
         )
     return t.sk.getUserRoles(user=user, tenant=settings.tapis_tenant_id).names
 
 
 def role_pgrest_admin(roles: List[str] = Depends(tapis_roles)):
     if not "PGREST_ADMIN" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 # Tapis SK Roles
@@ -113,34 +106,34 @@ def role_pgrest_admin(roles: List[str] = Depends(tapis_roles)):
 
 def vbr_user(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_USER" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 def vbr_admin(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_ADMIN" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 def vbr_read_public(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_READ_PUBLIC" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 def vbr_read_limited_phi(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_READ_LIMITED_PHI" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 def vbr_read_any_phi(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_READ_ANY_PHI" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 def vbr_write_public(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_WRITE_PUBLIC" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 def vbr_write_any(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_WRITE_ANY" in roles:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

@@ -2,6 +2,7 @@
 .vscode
 env/
 env.rc
+*.log
 
 # Deployment
 docker-compose.yml

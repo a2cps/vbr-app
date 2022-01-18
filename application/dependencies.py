@@ -1,16 +1,17 @@
 """Provides common dependencies for FastAPI routes"""
-import os
+import json
+import jwt
 from functools import lru_cache
 from typing import List, Optional
 
-import jwt
 import vbr
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tapipy.errors import BaseTapyException
 from tapipy.tapis import Tapis
 from vbr.hashable import picklecache
 
+from .auditlog import logger
 from .config import get_settings
 
 settings = get_settings()
@@ -33,7 +34,7 @@ def _client(token: str) -> Tapis:
     return Tapis(base_url=settings.tapis_base_url, access_token=token)
 
 
-# @picklecache.mcache(lru_cache(maxsize=32))
+@picklecache.mcache(lru_cache(maxsize=4))
 def tapis_admin_client() -> Tapis:
     """Returns the configured service account Tapis client
 
@@ -137,3 +138,41 @@ def vbr_write_public(roles: List[str] = Depends(tapis_roles)):
 def vbr_write_any(roles: List[str] = Depends(tapis_roles)):
     if not "VBR_WRITE_ANY" in roles:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+async def log_request(request: Request):
+    """Log requests using the audit logger"""
+    request_body = await request.body()
+    try:
+        request_body = json.loads(request_body)
+    except Exception:
+        pass
+    headers = dict(request.headers)
+    auth_header = headers.pop("authorization", "")
+    auth_header = auth_header.replace("Bearer ", "")
+    try:
+        jwt_claimset = jwt.decode(auth_header, options={"verify_signature": False})
+        tapis_username = jwt_claimset.get("tapis/username", None)
+        if tapis_username is not None:
+            admin_client = tapis_admin_client()
+            tapis_roles = admin_client.sk.getUserRoles(
+                user=tapis_username, tenant=settings.tapis_tenant_id
+            ).names
+    except jwt.exceptions.DecodeError:
+        jwt_claimset = {}
+        tapis_roles = []
+
+    log = {
+        "id": request.state.uuid,
+        "request": {
+            "url": request.url,
+            "method": request.method,
+            "headers": headers,
+            "query_params": dict(request.query_params),
+            "path_params": dict(request.path_params),
+            "body": request_body,
+            "jwt_claimset": dict(jwt_claimset),
+            "user_roles": tapis_roles,
+        },
+    }
+    logger.info(log)

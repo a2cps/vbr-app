@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     app_log_level: str = "DEBUG"
     app_debug: bool = True
     app_default_page_size: int = 50
+    app_log_path = "."
 
     class Config:
         env_file = "env.rc"

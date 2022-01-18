@@ -2,10 +2,12 @@ import time
 from datetime import datetime, timedelta
 from importlib import metadata
 from typing import Dict
+from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
+from .auditlog import logger
 from .config import get_settings
 from .dependencies import *
 from .internal import admin, auth
@@ -97,12 +99,36 @@ app = FastAPI(
 
 
 @app.middleware("http")
+async def add_uuid(request: Request, call_next):
+    """Adds a UUID to each request."""
+    request.state.uuid = uuid4().hex
+    response = await call_next(request)
+    response.headers["X-Request-Id"] = str(request.state.uuid)
+    return response
+
+
+@app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     """Adds a timing header to each service response."""
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
+@app.middleware("http")
+async def log_response(request: Request, call_next):
+    """Logs response using the audit logger."""
+    response = await call_next(request)
+    log = {
+        "id": request.state.uuid,
+        "response": {
+            "status_code": response.status_code,
+            "headers": dict(response.headers),
+        },
+    }
+    logger.info(log)
     return response
 
 
@@ -164,18 +190,18 @@ async def status_auth_check() -> dict:
 
 
 # User-mode routes
-app.include_router(auth.router)
-app.include_router(biospecimens.router)
-app.include_router(containers.router)
-app.include_router(container_types.router)
-app.include_router(locations.router)
-app.include_router(organizations.router)
-app.include_router(projects.router)
-app.include_router(shipments.router)
-app.include_router(subjects.router)
-app.include_router(units.router)
+app.include_router(auth.router, dependencies=[Depends(log_request)])
+app.include_router(biospecimens.router, dependencies=[Depends(log_request)])
+app.include_router(containers.router, dependencies=[Depends(log_request)])
+app.include_router(container_types.router, dependencies=[Depends(log_request)])
+app.include_router(locations.router, dependencies=[Depends(log_request)])
+app.include_router(organizations.router, dependencies=[Depends(log_request)])
+app.include_router(projects.router, dependencies=[Depends(log_request)])
+app.include_router(shipments.router, dependencies=[Depends(log_request)])
+app.include_router(subjects.router, dependencies=[Depends(log_request)])
+app.include_router(units.router, dependencies=[Depends(log_request)])
 # Admin-only routes.
 # All requires VBR_ADMIN role
-app.include_router(admin.router)
+app.include_router(admin.router, dependencies=[Depends(log_request)])
 
 use_route_names_as_operation_ids(app)

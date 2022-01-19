@@ -28,6 +28,7 @@ router = APIRouter(
     prefix="/biospecimens",
     tags=["biospecimens"],
     responses={404: {"description": "Not found"}},
+    route_class=LoggingRoute,
 )
 
 

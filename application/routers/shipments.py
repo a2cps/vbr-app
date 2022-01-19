@@ -3,22 +3,29 @@ from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, tracking_id
-from vbr.utils.barcode import (generate_barcode_string,
-                               sanitize_identifier_string)
+from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from application.routers import container_types
 from application.routers.models.actions.comment import Comment
 from application.routers.models.actions.shipment import CreateShipment
 
 from ..dependencies import *
-from .models import (AddContainer, Container, CreateComment, Event,
-                     SetShipmentStatus, Shipment, transform)
+from .models import (
+    AddContainer,
+    Container,
+    CreateComment,
+    Event,
+    SetShipmentStatus,
+    Shipment,
+    transform,
+)
 from .utils import parameters_to_query
 
 router = APIRouter(
     prefix="/shipments",
     tags=["shipments"],
     responses={404: {"description": "Not found"}},
+    route_class=LoggingRoute,
 )
 
 

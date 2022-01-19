@@ -91,7 +91,7 @@ tags_metadata = [
 app = FastAPI(
     title="A2CPS Virtual Biospecimen Repository API",
     description=description,
-    version="0.0.9",
+    version="0.1.0",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
     debug=settings.app_debug,
     openapi_tags=tags_metadata,
@@ -114,21 +114,6 @@ async def add_process_time_header(request: Request, call_next):
     response = await call_next(request)
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
-    return response
-
-
-@app.middleware("http")
-async def log_response(request: Request, call_next):
-    """Logs response using the audit logger."""
-    response = await call_next(request)
-    log = {
-        "id": request.state.uuid,
-        "response": {
-            "status_code": response.status_code,
-            "headers": dict(response.headers),
-        },
-    }
-    logger.info(log)
     return response
 
 
@@ -190,18 +175,18 @@ async def status_auth_check() -> dict:
 
 
 # User-mode routes
-app.include_router(auth.router, dependencies=[Depends(log_request)])
-app.include_router(biospecimens.router, dependencies=[Depends(log_request)])
-app.include_router(containers.router, dependencies=[Depends(log_request)])
-app.include_router(container_types.router, dependencies=[Depends(log_request)])
-app.include_router(locations.router, dependencies=[Depends(log_request)])
-app.include_router(organizations.router, dependencies=[Depends(log_request)])
-app.include_router(projects.router, dependencies=[Depends(log_request)])
-app.include_router(shipments.router, dependencies=[Depends(log_request)])
-app.include_router(subjects.router, dependencies=[Depends(log_request)])
-app.include_router(units.router, dependencies=[Depends(log_request)])
+app.include_router(auth.router)
+app.include_router(biospecimens.router)
+app.include_router(containers.router)
+app.include_router(container_types.router)
+app.include_router(locations.router)
+app.include_router(organizations.router)
+app.include_router(projects.router)
+app.include_router(shipments.router)
+app.include_router(subjects.router)
+app.include_router(units.router)
 # Admin-only routes.
 # All requires VBR_ADMIN role
-app.include_router(admin.router, dependencies=[Depends(log_request)])
+app.include_router(admin.router)
 
 use_route_names_as_operation_ids(app)

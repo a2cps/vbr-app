@@ -1,11 +1,13 @@
 """Provides common dependencies for FastAPI routes"""
 import json
 import jwt
+from datetime import datetime
 from functools import lru_cache
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import vbr
-from fastapi import Depends, Header, HTTPException, Request, status
+from fastapi import Depends, Header, HTTPException, Request, Response, status
+from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tapipy.errors import BaseTapyException
 from tapipy.tapis import Tapis
@@ -140,39 +142,72 @@ def vbr_write_any(roles: List[str] = Depends(tapis_roles)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-async def log_request(request: Request):
-    """Log requests using the audit logger"""
-    request_body = await request.body()
-    try:
-        request_body = json.loads(request_body)
-    except Exception:
-        pass
-    headers = dict(request.headers)
-    auth_header = headers.pop("authorization", "")
-    auth_header = auth_header.replace("Bearer ", "")
-    try:
-        jwt_claimset = jwt.decode(auth_header, options={"verify_signature": False})
-        tapis_username = jwt_claimset.get("tapis/username", None)
-        if tapis_username is not None:
-            admin_client = tapis_admin_client()
-            tapis_roles = admin_client.sk.getUserRoles(
-                user=tapis_username, tenant=settings.tapis_tenant_id
-            ).names
-    except jwt.exceptions.DecodeError:
-        jwt_claimset = {}
-        tapis_roles = []
+def timestamp():
+    """Return formatted UTC timestamp"""
+    DEST = "%Y-%m-%dT%H:%M:%S.%fZ"
+    return datetime.utcnow().strftime(DEST)
 
-    log = {
-        "id": request.state.uuid,
-        "request": {
-            "url": request.url,
-            "method": request.method,
-            "headers": headers,
-            "query_params": dict(request.query_params),
-            "path_params": dict(request.path_params),
-            "body": request_body,
-            "jwt_claimset": dict(jwt_claimset),
-            "user_roles": tapis_roles,
-        },
-    }
-    logger.info(log)
+
+class LoggingRoute(APIRoute):  # noqa
+    """Log request and response as JSON using the audit logger"""
+
+    def get_route_handler(self) -> Callable:  # noqa
+        original_route_handler = super().get_route_handler()
+
+        async def custom_route_handler(request: Request) -> Response:  # noqa
+
+            log = {
+                "timestamp": timestamp(),
+                "id": request.state.uuid,
+                "operation_id": None,
+                "request": {},
+                "response": {},
+            }
+            scope = request.scope
+            log["operation_id"] = scope.get("endpoint").__name__
+
+            headers = dict(request.headers)
+            auth_header = headers.pop("authorization", "")
+            auth_header = auth_header.replace("Bearer ", "")
+
+            try:
+                jwt_claimset = jwt.decode(
+                    auth_header, options={"verify_signature": False}
+                )
+                tapis_username = jwt_claimset.get("tapis/username", None)
+                # TODO - caching
+                # if tapis_username is not None:
+                #     admin_client = tapis_admin_client()
+                #     tapis_roles = admin_client.sk.getUserRoles(
+                #         user=tapis_username, tenant=settings.tapis_tenant_id
+                #     ).names
+            except jwt.exceptions.DecodeError:
+                jwt_claimset = {}
+                # tapis_roles = []
+
+            log["request"]["method"] = str(request.method)
+            log["request"]["url"] = str(request.url)
+            log["request"]["jwt_claimset"] = jwt_claimset
+            log["request"]["query_params"] = dict(request.query_params)
+            log["request"]["path_params"] = dict(request.path_params)
+
+            if scope.get("method", None) in ("POST", "PUT", "PATCH"):
+                request_json = await request.json()
+            else:
+                request_json = None
+            log["request"]["body"] = request_json
+
+            response = await original_route_handler(request)
+            log["response"]["status_code"] = response.status_code
+            log["response"]["headers"] = dict(response.headers)
+
+            if scope.get("method", None) in ("POST", "PUT", "PATCH"):
+                response_body = json.loads(response.body)
+            else:
+                response_body = {"note": "not logged"}
+            log["response"]["response_body"] = response_body
+
+            logger.info(json.dumps(log, separators=(",", ":")))
+            return response
+
+        return custom_route_handler

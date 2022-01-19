@@ -2,8 +2,6 @@ import logging
 import os
 from .config import get_settings
 
-LOG_PATH = "."
-
 __all__ = ["logger"]
 
 settings = get_settings()
@@ -13,7 +11,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "basic": {
-            "format": "%(asctime)-6s: %(name)s - %(levelname)s - %(message)s",
+            "format": "%(message)s",
         },
     },
     "handlers": {

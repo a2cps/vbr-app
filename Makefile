@@ -11,10 +11,10 @@ deps:
 	pip install -I --upgrade -r requirements-dev.txt
 
 reformat:
-	black *.py ; black tasks
+	black *.py
 
 lint:
-	pylint --enable=F,E --disable=W,C,R *.py tasks/*.py
+	pylint --enable=F,E --disable=W,C,R application
 
 isort:
 	isort *.py

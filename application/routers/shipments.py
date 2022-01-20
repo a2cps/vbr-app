@@ -263,8 +263,8 @@ def remove_container_from_shipment(
     return rows
 
 
-# PUT /tracking/{tracking_id}/status - update status by name
-@router.put(
+# PATCH /tracking/{tracking_id}/status - update status by name
+@router.patch(
     "/tracking/{tracking_id}/status",
     dependencies=[Depends(vbr_write_public)],
     response_model=Shipment,

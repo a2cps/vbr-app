@@ -232,8 +232,8 @@ def get_biospecimen_by_id(
     return row
 
 
-# PUT /{biospecimen_id}/container
-@router.put(
+# PATCH /{biospecimen_id}/container
+@router.patch(
     "/{biospecimen_id}/container",
     dependencies=[Depends(vbr_write_public)],
     response_model=Biospecimen,
@@ -260,8 +260,8 @@ def update_biospecimen_container(
     return row
 
 
-# PUT /{biospecimen_id}/status
-@router.put(
+# PATCH /{biospecimen_id}/status
+@router.patch(
     "/{biospecimen_id}/status",
     dependencies=[Depends(vbr_write_public)],
     response_model=Biospecimen,
@@ -289,8 +289,8 @@ def update_biospecimen_status(
     return row
 
 
-# PUT /{biospecimen_id}/tracking_id
-@router.put(
+# PATCH /{biospecimen_id}/tracking_id
+@router.patch(
     "/{biospecimen_id}/tracking_id",
     dependencies=[Depends(vbr_read_public)],
     response_model=Biospecimen,

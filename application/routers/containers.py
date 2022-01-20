@@ -210,8 +210,8 @@ def list_biospecimens_in_container(
     return rows
 
 
-# PUT /{container_id}/status - update status by name
-@router.put(
+# PATCH /{container_id}/status - update status by name
+@router.patch(
     "/{container_id}/status",
     dependencies=[Depends(vbr_write_public)],
     response_model=Container,
@@ -238,7 +238,8 @@ def update_container_status(
     return row
 
 
-@router.put(
+# PATCH /{container_id}/location - update location of container
+@router.patch(
     "/{container_id}/location",
     dependencies=[Depends(vbr_write_public)],
     response_model=Container,
@@ -266,7 +267,8 @@ def update_container_location(
     return row
 
 
-@router.put(
+# PATCH /{container_id}/tracking_id - update tracking id for container
+@router.patch(
     "/{container_id}/tracking_id",
     dependencies=[Depends(vbr_write_public)],
     response_model=Container,

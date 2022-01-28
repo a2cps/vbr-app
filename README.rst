@@ -42,13 +42,13 @@ License
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
-    :target: https://docs.readthedocs.io/en/latest/?badge=latest
+    :target: https://vbr-api.readthedocs.io/en/latest/
 
-.. |openapi| image:: https://img.shields.io/swagger/valid/3.0?label=openapi%203.x&specUrl=https%3A%2F%2Fvbr-api.a2cps.cloud%2Fopenapi.json
-    :alt: OpenAPI Validator
+.. |openapi| image:: https://img.shields.io/swagger/valid/3.0?label=openapi%203.0&specUrl=https%3A%2F%2Fvbr-api.a2cps.cloud%2Fopenapi.json
+    :alt: OpenAPI Validation Status
     :target: https://vbr-api.a2cps.cloud/openapi.json
 
 .. |status| image:: https://img.shields.io/website?label=status&url=https%3A%2F%2Fvbr-api.a2cps.cloud%2Fdocs
-    :alt: API Status
+    :alt: API Server Status
     :target: https://vbr-api.a2cps.cloud/docs
 

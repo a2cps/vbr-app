@@ -39,3 +39,7 @@ compose-up:
 
 compose-down:
 	docker-compose down
+
+.PHONY: docs
+docs:
+	cd docs; make html

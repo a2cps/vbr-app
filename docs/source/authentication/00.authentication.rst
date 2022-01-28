@@ -1,0 +1,152 @@
+========================================
+A2CPS Virtual Biospecimen Repository API
+========================================
+
+This API manages Biospecimen logistics and processing.
+
+Prerequistes
+============
+- Be part of a A2CPS Project/group
+- Have a TACC username and TACC password
+
+Getting Started
+---------------
+
+To get started working with the A2CPS Virtual Biospecimen Repository API, you need to get authenticated.
+
+Authentication and Authorization
+================================
+
+- /auth/token
+
+Use the **/auth/token** endpoint to authenticate using TACC credentials.
+
+- Click on the POST method for /auth/token endpoint. We create a Tapis Token using this
+  endpoint.
+- Hit the Try it out Button to unlock the Request body fields.
+- Enter your TACC username and TACC password in the fields and hit Execute.
+
+You could also use the curl request on the command line to get your access token.
+
+.. code-block:: bash
+
+   curl -X 'POST' \
+        'https://vbr-api.a2cps.cloud/auth/token' \
+        -H 'accept: application/json' \
+        -H 'Content-Type: application/x-www-form-urlencoded' \
+        -d 'grant_type=&username=taccUsername&password=taccPassword!&scope=&client_id=&client_secret='
+
+Once the request is submitted, you would see a response body as shown below.
+The response body holds your access_token.
+
+.. code-block:: bash
+
+   {
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJmYT24252MzMS00ZWQ4Ltwtwtwfwr21",
+        "token_type": "bearer"
+   }
+
+
+
+*Alternate Method for Authentication*
+=====================================
+
+- Click on the Authorize button `here <https://vbr-api.a2cps.cloud/docs/>`_ as shown below.
+
+.. image:: images/authorize.jpg
+   :height: 250
+   :align: center
+   :alt: Authorize
+
+
+- Enter your TACC username and TACC password and hit Authorize to get started.
+
+.. image:: images/username_password.jpg
+   :height: 500
+   :width: 400
+   :align: center
+   :alt: Enter TACC Username and Password
+
+
+
+- With the correct credentials entered, you would be able to see your available authorizations.
+
+.. image:: images/available_authorizations.jpg
+   :height: 500
+   :width: 700
+   :align: center
+   :alt: View Available Authorizations
+
+
+
+.. note::
+    Once authentication is successful, you will be able to see the locks in
+    closed state on the webpage.
+
+
+To Verify Authentication was successfull
+========================================
+
+- /status endpoint
+
+Status endpoints can be used to provide basic system health checks.
+
+- Use the /status endpoint to check if authentication was successfull.
+
+1. A simple GET request on the **/status** endpoint would provide an unauthenticated status check.
+
+.. code-block:: bash
+
+   curl -X 'GET' \
+   'https://vbr-api.a2cps.cloud/status' \
+   -H 'accept: application/json'
+
+A successfull response would be:
+
+.. code-block:: bash
+   :emphasize-lines: 9
+
+   {
+        "service": "A2CPS Virtual Biospecimen Repository API",
+        "versions": {
+            "app": "0.1.0",
+            "python_vbr": "0.1.0",
+            "tapipy": "1.0.3"
+        },
+        "tenant": "a2cpsdev",
+        "status": "OK",
+        "uptime": 184669.836504,
+        "message": "Status retrieved"
+   }
+
+Here we can see the status is **"OK"**.
+
+2. A simple GET request on the **/status/auth** endpoint would provide an authenticated status check.
+
+.. code-block:: bash
+
+   curl -X 'GET' \
+    'https://vbr-api.a2cps.cloud/status/auth' \
+    -H 'accept: application/json' \
+    -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiIxYzZiZWU2OS1kYzcyLTQ1ZTYtOTEwYy0zNjhiYzk1NTQzMTkiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzMzM4NzY2LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.fnz-5lRMWF_6yUNnJJFrGTrjWL2LuoPPxOTIL9TL4f0xVcqqGjFl2DeS6AtsEhP2NfZAoWg9BnhpCDuFWd8Ss4SRpx2LOOg_P42edWlXuJizCP8wOq_A4GUp1Nk1to1qWfZ-M907YwFzfZQZDz12Ei8QbjmpWcnZ0Da6WTGVBAz840D7fxQb-XioTQDCJJM-A95hTAfk9ZvCxeObmIUKZ0qn6HtLVVRiaRbl_OkcubgCPxHQJXWocxC0fiUqLeo9QJRfjLTO38Z8_j5MX2ITh9jhgGI-45vf_qYXwwABCpK3tuRbXS77sDcS2halWHKHU-ZvdGBDEEpiS6J1KI5SKg'
+
+
+A successfull response would look like:
+
+.. code-block:: bash
+   :emphasize-lines: 9, 11
+
+   {
+        "service": "A2CPS Virtual Biospecimen Repository API",
+        "versions": {
+            "app": "0.1.0",
+            "python_vbr": "0.1.0",
+            "tapipy": "1.0.3"
+        },
+        "tenant": "a2cpsdev",
+        "status": "OK",
+        "uptime": 184860.123499,
+        "message": "Authentication successful"
+   }
+
+Here we can see the status is **"OK"**. You are now logged in to the service!

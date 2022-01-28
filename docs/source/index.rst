@@ -9,7 +9,8 @@ Welcome to VBR API's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   authentication/00.authentication
 
 
 Indices and tables

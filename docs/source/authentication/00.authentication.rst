@@ -91,7 +91,7 @@ To Verify Authentication was successfull
 
 Status endpoints can be used to provide basic system health checks.
 
-- Use the /status endpoint to check if authentication was successfull.
+- Use the /status endpoint to check if authentication was successful.
 
 1. A simple GET request on the **/status** endpoint would provide an unauthenticated status check.
 
@@ -101,7 +101,7 @@ Status endpoints can be used to provide basic system health checks.
    'https://vbr-api.a2cps.cloud/status' \
    -H 'accept: application/json'
 
-A successfull response would be:
+A successful response would be:
 
 .. code-block:: bash
    :emphasize-lines: 9
@@ -131,7 +131,7 @@ Here we can see the status is **"OK"**.
     -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiIxYzZiZWU2OS1kYzcyLTQ1ZTYtOTEwYy0zNjhiYzk1NTQzMTkiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzMzM4NzY2LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.fnz-5lRMWF_6yUNnJJFrGTrjWL2LuoPPxOTIL9TL4f0xVcqqGjFl2DeS6AtsEhP2NfZAoWg9BnhpCDuFWd8Ss4SRpx2LOOg_P42edWlXuJizCP8wOq_A4GUp1Nk1to1qWfZ-M907YwFzfZQZDz12Ei8QbjmpWcnZ0Da6WTGVBAz840D7fxQb-XioTQDCJJM-A95hTAfk9ZvCxeObmIUKZ0qn6HtLVVRiaRbl_OkcubgCPxHQJXWocxC0fiUqLeo9QJRfjLTO38Z8_j5MX2ITh9jhgGI-45vf_qYXwwABCpK3tuRbXS77sDcS2halWHKHU-ZvdGBDEEpiS6J1KI5SKg'
 
 
-A successfull response would look like:
+A successful response would look like:
 
 .. code-block:: bash
    :emphasize-lines: 9, 11

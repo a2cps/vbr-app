@@ -283,7 +283,7 @@ def update_biospecimen_status(
     query = {"biospecimen_id": {"operator": "eq", "value": measurement.local_id}}
     row = transform(
         client.vbr_client.query_view_rows(
-            view_name="biospecimens_public", query=query, limit=1, offset=0
+            view_name="biospecimens_details", query=query, limit=1, offset=0
         )[0]
     )
     return row

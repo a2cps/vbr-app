@@ -11,6 +11,8 @@ Welcome to VBR API's documentation!
    :caption: Contents:
    
    authentication/00.authentication
+   biospecimens/00.biospecimens
+   containers/00.containers
 
 
 Indices and tables

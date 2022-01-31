@@ -1,0 +1,41 @@
+Containers
+==========
+
+Containers hold biospecimens. A biospecimen can be found only in one container.
+
+
+List Containers
+---------------
+
+- Use the GET /containers/ endpoint to view the list of containers
+
+The following curl request can be used on the command line to list the containers available.
+
+.. code-block:: bash
+    curl -X 'GET' \
+    'https://vbr-api.a2cps.cloud/containers/?offset=0&limit=50' \
+    -H 'accept: application/json' \
+    -H 'Authorization: Bearer Token'
+
+A successful response would look like:
+
+
+Update Container Location
+-------------------------
+
+- Use the PATCH /containers/{container_id}/location to update the location of a container.
+- Enter the *container_id* field and modify the request body with the correct *location_id* and *comment*.
+
+
+A successful response would look like:
+
+.. code-block:: bash
+
+   {
+        "container_id": "string",
+        "container_tracking_id": "string",
+        "container_type": "string",
+        "location": "string",
+        "status": "string",
+        "tracking_id": "string"
+   }

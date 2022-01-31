@@ -13,6 +13,7 @@ Welcome to VBR API's documentation!
    authentication/00.authentication
    biospecimens/00.biospecimens
    containers/00.containers
+   workflows/01.process_receipt
 
 
 Indices and tables

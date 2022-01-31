@@ -1,0 +1,177 @@
+Workflows
+=========
+
+This is an example workflow:
+
+1. Process receipt of a shipment:
+
+
+    * Get shipment by tracking ID
+    * Update shipment status
+    * List containers in shipment
+    * Update status of each container
+    * Update location of each container
+    * List biosamples in each container
+    * Update status of each biosample
+    * Update tracking ID for each biosample (if non-unique)
+
+
+Get shipment by tracking ID
+---------------------------
+
+Let us use a known "tracking_id" : 285590095441.
+
+- Use the GET /shipments/tracking/{tracking_id} endpoint to get a shipment by it's tracking id.
+
+The curl request would be:
+
+.. code-block::
+
+    curl -X 'GET' \
+  'https://vbr-api.a2cps.cloud/shipments/tracking/285590095441' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer
+
+A successful response would look like:
+
+.. code-block::
+   :emphasize-lines: 1, 3
+    {
+        "shipment_id": "76zV8EM980jA4",
+        "tracking_id": "285590095441",
+        "shipment_name": "Northshore Shipping -1",
+        "sender_name": "MR/VW",
+        "project_name": "A2CPS Multisite Clinical Center 1",
+        "ship_from": "MCC1: NorthShore University HealthSystem",
+        "ship_to": "Receiving: University of California San Diego",
+        "status": "shipment.shipped"
+    }
+
+Update shipment status
+----------------------
+
+- Use the PATCH /shipments/tracking/{tracking_id}/status endpoint to update the shipment status.
+
+- Permitted **status** values are ['created', 'shipped', 'received', 'processed', 'delayed', 'lost'].
+
+The curl request would be:
+
+.. code-block:: bash
+
+   curl -X 'PATCH' \
+  'https://vbr-api.a2cps.cloud/shipments/tracking/285590095441/status' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI0ZTcyNTMfgsgsgsg2NC1hNzUzLTRkMjEtYmI2Ni1kYTgxZDEzZjRmNzIiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzNjcwODI3LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.DwyzMvLGm1hPvxFmMRpPGJ9DhyZqQTlp_newlgRCFvKsywDVnGofOD3s62OBxRJvuaxdlfSKoWTnPzGTfuFfItKCGzOWl9USkvKnroRq8m47z5gX1m3DkqOE_zrzyQn-u4nqJvFGWOLOPB94W5mgf4jFncU2LXmNdjy5eJvmqSXe3FqKYHxsPRweZc12ykgUYeaJSmd45Pce8bG2-KTLEcvX3ECh6sjtJ7w5rZY5ASn0BPBayYMUtUsJrV5dKwmAmRWbxjDvBf9sHysxpUj2FwkbIsMTwSyDUN9Euii0zbKfYcUg3fBJUYF86ll3CNpixzxe23T6Tr9jbf2HE5PDTQ' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "status": "created",
+    "relocate_containers": false,
+    "comment": "string"
+    }'
+
+A successful response would be:
+
+.. code-block:: bash
+
+    {
+        "shipment_id": "76zV8EM980jA4",
+        "tracking_id": "285590095441",
+        "shipment_name": "Northshore Shipping -1",
+        "sender_name": "MR/VW",
+        "project_name": "A2CPS Multisite Clinical Center 1",
+        "ship_from": "MCC1: NorthShore University HealthSystem",
+        "ship_to": "Receiving: University of California San Diego",
+        "status": "shipment.created"
+    }
+
+
+List containers in shipment
+----------------------------
+
+- The /shipments/tracking/{tracking_id}/containers endpoint can be used to get the containers in a shipment.
+
+.. code-block::
+
+   curl -X 'GET' \
+  'https://vbr-api.a2cps.cloud/shipments/tracking/285590095441/containers' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer
+
+A successful response would be:
+
+.. code-block::
+
+    [
+    {
+        "container_id": "eAbV8nryeVoX",
+        "container_tracking_id": "K_NS_BOX_ALI0001",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "created",
+        "tracking_id": "285590095441"
+    },
+    {
+        "container_id": "P4KAOZ088xbpZ",
+        "container_tracking_id": "K_NS_BOX_ALI0002",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "created",
+        "tracking_id": "285590095441"
+    },
+    {
+        "container_id": "8em97go61M29W",
+        "container_tracking_id": "K_NS_BOX_ALI0003",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "created",
+        "tracking_id": "285590095441"
+    },
+    {
+        "container_id": "8L62j5zZ7yWP6",
+        "container_tracking_id": "K_NS_BOX_ALI0004",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "created",
+        "tracking_id": "285590095441"
+    },
+    {
+        "container_id": "7ykNrLzkZR3g3",
+        "container_tracking_id": "K_NS_BOX_ALI0005",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "created",
+        "tracking_id": "285590095441"
+    },
+    {
+        "container_id": "8PAnJWgwJNKLp",
+        "container_tracking_id": "K_NS_BOX_ALI0006",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "created",
+        "tracking_id": "285590095441"
+    }
+  ]
+
+
+
+Update status of each container
+-------------------------------
+
+
+
+Update location of each container
+---------------------------------
+
+
+List biosamples in each container
+---------------------------------
+
+
+Update status of each biosample
+-------------------------------
+
+
+
+Update tracking ID for each biosample (if non-unique)
+-----------------------------------------------------
+

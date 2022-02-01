@@ -247,9 +247,9 @@ def update_biospecimen_container(
 
     Requires: **VBR_WRITE_PUBLIC**"""
     biospecimen_id = sanitize_identifier_string(biospecimen_id)
-    biospecimen_id = sanitize_identifier_string(body.biospecimen_id)
+    container_id = sanitize_identifier_string(body.container_id)
     measurement = client.rebox_measurement_by_local_id(
-        local_id=biospecimen_id, container_local_id=biospecimen_id
+        local_id=biospecimen_id, container_local_id=container_id
     )
     query = {"biospecimen_id": {"operator": "eq", "value": measurement.local_id}}
     row = transform(

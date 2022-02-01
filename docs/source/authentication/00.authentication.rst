@@ -54,7 +54,6 @@ The response body holds your access_token.
 - Click on the Authorize button `here <https://vbr-api.a2cps.cloud/docs/>`_ as shown below.
 
 .. image:: images/authorize.jpg
-   :height: 250
    :align: center
    :alt: Authorize
 

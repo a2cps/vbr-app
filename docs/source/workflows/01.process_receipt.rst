@@ -30,7 +30,7 @@ The curl request would be:
     curl -X 'GET' \
   'https://vbr-api.a2cps.cloud/shipments/tracking/285590095441' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer
+  -H 'Authorization: Bearer Token
 
 A successful response would look like:
 
@@ -62,7 +62,7 @@ The curl request would be:
    curl -X 'PATCH' \
   'https://vbr-api.a2cps.cloud/shipments/tracking/285590095441/status' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI0ZTcyNTMfgsgsgsg2NC1hNzUzLTRkMjEtYmI2Ni1kYTgxZDEzZjRmNzIiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzNjcwODI3LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.DwyzMvLGm1hPvxFmMRpPGJ9DhyZqQTlp_newlgRCFvKsywDVnGofOD3s62OBxRJvuaxdlfSKoWTnPzGTfuFfItKCGzOWl9USkvKnroRq8m47z5gX1m3DkqOE_zrzyQn-u4nqJvFGWOLOPB94W5mgf4jFncU2LXmNdjy5eJvmqSXe3FqKYHxsPRweZc12ykgUYeaJSmd45Pce8bG2-KTLEcvX3ECh6sjtJ7w5rZY5ASn0BPBayYMUtUsJrV5dKwmAmRWbxjDvBf9sHysxpUj2FwkbIsMTwSyDUN9Euii0zbKfYcUg3fBJUYF86ll3CNpixzxe23T6Tr9jbf2HE5PDTQ' \
+  -H 'Authorization: Bearer Token \
   -H 'Content-Type: application/json' \
   -d '{
     "status": "created",
@@ -96,7 +96,7 @@ List containers in shipment
    curl -X 'GET' \
   'https://vbr-api.a2cps.cloud/shipments/tracking/285590095441/containers' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer
+  -H 'Authorization: Bearer Token
 
 A successful response would be:
 
@@ -158,21 +158,214 @@ A successful response would be:
 Update status of each container
 -------------------------------
 
+- The PATCH /containers/{container_id}/status endpoint can be used to update the status of a container.
 
+Let us pick a container_id of interest and update it's status.
+
+.. code-block:: bash
+
+    curl -X 'PATCH' \
+    'https://vbr-api.a2cps.cloud/containers/8PAnJWgwJNKLp/status' \
+    -H 'accept: application/json' \
+    -H 'Authorization: Bearer Token \
+    -H 'Content-Type: application/json' \
+    -d '{
+        "status": "created",
+        "comment": "string"
+    }'
+
+A successful response would look like:
+
+.. code-block:: bash
+   :emphasize-lines: 3, 7
+
+   {
+        "container_id": "8PAnJWgwJNKLp",
+        "container_tracking_id": "K_NS_BOX_ALI0006",
+        "container_type": "blood aliquot freezer box",
+        "location": "MCC1: NorthShore University HealthSystem",
+        "status": "container.created",
+        "tracking_id": "285590095441"
+    }
+
+We can modify the status of each container using this endpoint.
 
 Update location of each container
 ---------------------------------
+- The PATCH /containers/{container_id}/location endpoint can be used to update the location of each container.
+
 
 
 List biosamples in each container
 ---------------------------------
 
+- The GET /containers/{container_id}/biospecimens can be used to list the biospecimens in a container.
+
+The curl request would be:
+
+.. code-block:: bash
+
+   curl -X 'GET' \
+  'https://vbr-api.a2cps.cloud/containers/8PAnJWgwJNKLp/biospecimens' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer Tkeno
+
+
+A successful response would look like:
+
+.. code-block:: bash
+
+    [
+    {
+        "biospecimen_id": "PdrmvReLkjeNB",
+        "tracking_id": "K_NS_P_0050",
+        "creation_time": "2021-09-08T00:00:00",
+        "biospecimen_type": "serum or plasma",
+        "collection_id": "8P6R89Y60NBn8",
+        "collection_tracking_id": "K_NS_KIT_0050",
+        "container_id": "8PAnJWgwJNKLp",
+        "container_tracking_id": "K_NS_BOX_ALI0006",
+        "project": "A2CPS Multisite Clinical Center 1",
+        "status": "created",
+        "unit": "plasma_aliquot_tube",
+        "subject_guid": "67c83cf9-4e9e-985d-1003-e776efecee86",
+        "subject_id": "1bnoL9dYY8xx8",
+        "bscp_time_blood_draw": "2021-09-08T11:03:00",
+        "bscp_time_centrifuge": "2021-09-08T11:23:00",
+        "bscp_aliquot_freezer_time": "2021-09-08T11:28:00",
+        "bscp_deg_of_hemolysis": 0,
+        "bscp_phleb_by_init": "AV",
+        "bscp_procby_initials": "MR",
+        "bscp_protocol_dev": false,
+        "bscp_comments": "",
+        "location": "MCC1: NorthShore University HealthSystem"
+    },
+    {
+        "biospecimen_id": "1yv0R0NvKBYXm",
+        "tracking_id": "K_NS_P_0047",
+        "creation_time": "2021-09-13T00:00:00",
+        "biospecimen_type": "serum or plasma",
+        "collection_id": "7kgm6XRjgkvmb",
+        "collection_tracking_id": "K_NS_KIT_0047",
+        "container_id": "8PAnJWgwJNKLp",
+        "container_tracking_id": "K_NS_BOX_ALI0006",
+        "project": "A2CPS Multisite Clinical Center 1",
+        "status": "created",
+        "unit": "plasma_aliquot_tube",
+        "subject_guid": "24caec78-fd6d-5843-6338-d01d21d966a9",
+        "subject_id": "P4Z1nP60yYkqX",
+        "bscp_time_blood_draw": "2021-09-13T09:34:00",
+        "bscp_time_centrifuge": "2021-09-13T09:54:00",
+        "bscp_aliquot_freezer_time": "2021-09-13T09:59:00",
+        "bscp_deg_of_hemolysis": 0,
+        "bscp_phleb_by_init": "SL",
+        "bscp_procby_initials": "MR",
+        "bscp_protocol_dev": false,
+        "bscp_comments": "",
+        "location": "MCC1: NorthShore University HealthSystem"
+    }
+  ]
+
 
 Update status of each biosample
 -------------------------------
+
+We can update the status of a biospecimen using the PATCH /biospecimens/{biospecimen_id}/status endpoint.
+
+The permitted values for **status** are: "inflight", "present", "spoiled", "depleted", "lost", "destroyed".
+
+The curl request would be:
+
+
+.. code-block:: bash
+
+   curl -X 'PATCH' \
+      'https://vbr-api.a2cps.cloud/biospecimens/7yAnxZN36BJJb/status' \
+      -H 'accept: application/json' \
+      -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI0ZTcyNTM2NC1hNzUzLTRkMjEtYmI2Ni1kYTgxZDEzZjRmNzIiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzNjcwODI3LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.DwyzMvLGm1hPvxFmMRpPGJ9DhyZqQTlp_newlgRCFvKsywDVnGofOD3s62OBxRJvuaxdlfSKoWTnPzGTfuFfItKCGzOWl9USkvKnroRq8m47z5gX1m3DkqOE_zrzyQn-u4nqJvFGWOLOPB94W5mgf4jFncU2LXmNdjy5eJvmqSXe3FqKYHxsPRweZc12ykgUYeaJSmd45Pce8bG2-KTLEcvX3ECh6sjtJ7w5rZY5ASn0BPBayYMUtUsJrV5dKwmAmRWbxjDvBf9sHysxpUj2FwkbIsMTwSyDUN9Euii0zbKfYcUg3fBJUYF86ll3CNpixzxe23T6Tr9jbf2HE5PDTQ' \
+      -H 'Content-Type: application/json' \
+      -d '{
+         "status": "inflight",
+         "comment": "string"
+      }'
+
+A successful response would look like:
+
+.. code-block:: bash
+   :emphasize-lines: 11
+
+   {
+      "biospecimen_id": "7yAnxZN36BJJb",
+      "tracking_id": "K_RU_P_0017",
+      "creation_time": "2021-04-30T00:00:00",
+      "biospecimen_type": "serum or plasma",
+      "collection_id": "PdV482PnBozxe",
+      "collection_tracking_id": "K_RU_KIT_0021",
+      "container_id": "8PqD2Xb7AgzA2",
+      "container_tracking_id": "K_RU_BOX_ALI_0002",
+      "project": "A2CPS Multisite Clinical Center 1",
+      "status": "measurement.inflight",
+      "unit": "plasma_aliquot_tube",
+      "subject_guid": "90f8fc45-5d53-0de4-6853-284607a8c4e6",
+      "subject_id": "Pxk1yXJPV3ADX",
+      "bscp_time_blood_draw": "2021-04-30T11:53:00",
+      "bscp_time_centrifuge": "2021-04-30T12:13:00",
+      "bscp_aliquot_freezer_time": "2021-04-30T12:24:00",
+      "bscp_deg_of_hemolysis": 1,
+      "bscp_phleb_by_init": "KB",
+      "bscp_procby_initials": "MM",
+      "bscp_protocol_dev": true,
+      "bscp_comments": "Unable to collect blood at baseline. Blood collected DOS.",
+      "location": "MCC1: Rush University Medical Center"
+   }
 
 
 
 Update tracking ID for each biosample (if non-unique)
 -----------------------------------------------------
 
+We can update the Tracking Id of a biospecimen to an Id of our choice.
+
+The curl request would be:
+
+.. code-block:: bash
+
+   curl -X 'PATCH' \
+      'https://vbr-api.a2cps.cloud/biospecimens/7yAnxZN36BJJb/tracking_id' \
+      -H 'accept: application/json' \
+      -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI0ZTcyNTM2NC1hNzUzLTRkMjEtYmI2Ni1kYTgxZDEzZjRmNzIiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzNjcwODI3LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.DwyzMvLGm1hPvxFmMRpPGJ9DhyZqQTlp_newlgRCFvKsywDVnGofOD3s62OBxRJvuaxdlfSKoWTnPzGTfuFfItKCGzOWl9USkvKnroRq8m47z5gX1m3DkqOE_zrzyQn-u4nqJvFGWOLOPB94W5mgf4jFncU2LXmNdjy5eJvmqSXe3FqKYHxsPRweZc12ykgUYeaJSmd45Pce8bG2-KTLEcvX3ECh6sjtJ7w5rZY5ASn0BPBayYMUtUsJrV5dKwmAmRWbxjDvBf9sHysxpUj2FwkbIsMTwSyDUN9Euii0zbKfYcUg3fBJUYF86ll3CNpixzxe23T6Tr9jbf2HE5PDTQ' \
+      -H 'Content-Type: application/json' \
+      -d '{
+         "tracking_id": "1234check",
+         "comment": "Optional comment explaining or documenting the change"
+      }'
+
+A successful response would hold the new *tracking_id* for our biospecimen.
+
+.. code-block:: bash
+   :emphasize-lines: 3, 4
+
+   {
+      "biospecimen_id": "7yAnxZN36BJJb",
+      "tracking_id": "1234check",
+      "creation_time": "2021-04-30T00:00:00",
+      "biospecimen_type": "serum or plasma",
+      "collection_id": "PdV482PnBozxe",
+      "collection_tracking_id": "K_RU_KIT_0021",
+      "container_id": "8PqD2Xb7AgzA2",
+      "container_tracking_id": "K_RU_BOX_ALI_0002",
+      "project": "A2CPS Multisite Clinical Center 1",
+      "status": "measurement.inflight",
+      "unit": "plasma_aliquot_tube",
+      "subject_guid": "90f8fc45-5d53-0de4-6853-284607a8c4e6",
+      "subject_id": "Pxk1yXJPV3ADX",
+      "bscp_time_blood_draw": "2021-04-30T11:53:00",
+      "bscp_time_centrifuge": "2021-04-30T12:13:00",
+      "bscp_aliquot_freezer_time": "2021-04-30T12:24:00",
+      "bscp_deg_of_hemolysis": 1,
+      "bscp_phleb_by_init": "KB",
+      "bscp_procby_initials": "MM",
+      "bscp_protocol_dev": true,
+      "bscp_comments": "Unable to collect blood at baseline. Blood collected DOS.",
+      "location": "MCC1: Rush University Medical Center"
+   }

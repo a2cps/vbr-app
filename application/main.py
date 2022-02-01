@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime, timedelta
 from importlib import metadata
@@ -6,6 +7,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from starlette.responses import FileResponse
 
 from .auditlog import logger
 from .config import get_settings
@@ -30,6 +32,8 @@ This API manages Biospecimen logistics and processing.
 You are viewing the interactive documenation. Detailed reference docs are [also available](../redoc). 
 
 """
+
+favicon_path = os.path.join(os.path.dirname(__file__), "favicon.ico")
 
 settings = get_settings()
 
@@ -141,6 +145,26 @@ def versions():
         "tapipy": metadata.version("tapipy"),
     }
     return v
+
+
+@app.get("/", include_in_schema=False)
+async def root() -> dict:
+    """Returns pointers to helpful endpoints when root path is requested."""
+    return {
+        "application": app.title,
+        "authentication": "/auth/token",
+        "docs": {
+            "narrative": "https://vbr-api.readthedocs.io/en/latest/",
+            "interactive": "/docs",
+            "detailed": "/redoc",
+        },
+        "status": "/status",
+    }
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse(favicon_path)
 
 
 @app.get("/status", tags=["status"], response_model=ApiStatus)

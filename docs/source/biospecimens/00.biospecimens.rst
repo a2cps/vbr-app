@@ -78,7 +78,7 @@ The curl command for the above example would be:
 .. code-block:: bash
 
    curl -X 'GET' \
-   'https://vbr-api.a2cps.cloud/biospecimens/?container_tracking_id=K_RU_KIT_0021&offset=0&limit=50' \
+   'https://vbr-api.a2cps.cloud/biospecimens/?collection_tracking_id=K_RU_KIT_0021&offset=0&limit=50' \
    -H 'accept: application/json' \
    -H 'Authorization: Bearer Token
 
@@ -309,8 +309,7 @@ A successful response would look like:
 Update Biospecimen Container
 ----------------------------
 
-- We can use PATCH /biospecimens/{biospecimen_id}/container endpoint to update the container of the
-biospecimen.
+- We can use PATCH /biospecimens/{biospecimen_id}/container endpoint to update the container of the biospecimen.
 
 The curl request would be:
 

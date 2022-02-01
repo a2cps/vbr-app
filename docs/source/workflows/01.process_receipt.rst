@@ -36,6 +36,7 @@ A successful response would look like:
 
 .. code-block::
    :emphasize-lines: 1, 3
+
     {
         "shipment_id": "76zV8EM980jA4",
         "tracking_id": "285590095441",

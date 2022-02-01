@@ -64,7 +64,7 @@ The cure request would be:
   -H 'accept: application/json' \
   -H 'Authorization: Bearer Token
 
-A successful respone would hold the entry for the *container_id* of request.
+A successful response would hold the entry for the *container_id* of request.
 
 .. code-block:: bash
    :emphasize-lines: 2

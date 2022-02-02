@@ -26,7 +26,7 @@ async def limit_offset(offset: int = 0, limit: int = settings.app_default_page_s
     return {"offset": offset, "limit": limit}
 
 
-@picklecache.mcache(lru_cache(maxsize=32))
+# @picklecache.mcache(lru_cache(maxsize=32))
 def _client(token: str) -> Tapis:
     """Private: Returns a Tapis client given an Oauth token.
 
@@ -36,7 +36,7 @@ def _client(token: str) -> Tapis:
     return Tapis(base_url=settings.tapis_base_url, access_token=token)
 
 
-@picklecache.mcache(lru_cache(maxsize=4))
+# @picklecache.mcache(lru_cache(maxsize=4))
 def tapis_admin_client() -> Tapis:
     """Returns the configured service account Tapis client
 

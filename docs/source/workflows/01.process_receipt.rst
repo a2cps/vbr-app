@@ -35,7 +35,7 @@ The curl request would be:
 A successful response would look like:
 
 .. code-block::
-   :emphasize-lines: 1, 3
+   :emphasize-lines: 3
 
     {
         "shipment_id": "76zV8EM980jA4",
@@ -73,6 +73,7 @@ The curl request would be:
 A successful response would be:
 
 .. code-block:: bash
+   :emphasize-lines: 9
 
     {
         "shipment_id": "76zV8EM980jA4",
@@ -177,7 +178,7 @@ Let us pick a container_id of interest and update it's status.
 A successful response would look like:
 
 .. code-block:: bash
-   :emphasize-lines: 3, 7
+   :emphasize-lines: 3, 6
 
    {
         "container_id": "8PAnJWgwJNKLp",
@@ -192,8 +193,92 @@ We can modify the status of each container using this endpoint.
 
 Update location of each container
 ---------------------------------
-- The PATCH /containers/{container_id}/location endpoint can be used to update the location of each container.
 
+To update the location of each container, we need to find out the *location_id* of the location of interest.
+For e.g: **"location": "MCC1: NorthShore University HealthSystem"**, let us find it's *location_id* by following the
+procedure below.
+
+- Use the GET /locations/ endpoint to get a list of locations with their details.
+
+.. code-block:: bash
+
+   curl -X 'GET' \
+  'https://vbr-api.a2cps.cloud/locations/?offset=0&limit=50' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer Token
+
+.. code-block:: bash
+   :emphasize-lines: 25,26
+
+   [
+      {
+         "location_id": "PAPmJLX2Pr4yM",
+         "display_name": "MCC1: Institute for Translational Medicine",
+         "address1": "",
+         "address2": "",
+         "address3": "",
+         "city": "Chicago",
+         "state_province_country": "IL",
+         "zip_or_postcode": "60637",
+         "organization": "ITM"
+      },
+      {
+         "location_id": "PAPmqezqm8rOn",
+         "display_name": "MCC1: The University of Chicago Medical Center",
+         "address1": "",
+         "address2": "",
+         "address3": "",
+         "city": "Chicago",
+         "state_province_country": "IL",
+         "zip_or_postcode": "60637",
+         "organization": "UCMC"
+      },
+      {
+         "location_id": "PAPmqjv157Moe",
+         "display_name": "MCC1: NorthShore University HealthSystem",
+         "address1": "",
+         "address2": "",
+         "address3": "",
+         "city": "Evanston",
+         "state_province_country": "IL",
+         "zip_or_postcode": "60201",
+         "organization": "NS"
+      }
+   ]
+
+From the above response, we can see the the *MCC1: NorthShore University HealthSystem* corresponds to *location_id : PAPmqjv157Moe*
+
+
+With the *location_id* in hand, we can now update the location of a container of interest.
+
+- The PATCH /containers/{container_id}/location endpoint can be used to update the location of each container.
+- Let us update the location of the *container_id : 8PAnJWgwJNKLp*
+
+.. code-block:: bash
+
+   curl -X 'PATCH' \
+   'https://vbr-api.a2cps.cloud/containers/8PAnJWgwJNKLp/location' \
+   -H 'accept: application/json' \
+   -H 'Authorization: Bearer Token \
+   -H 'Content-Type: application/json' \
+   -d '{
+      "location_id": "PAPmqjv157Moe",
+      "comment": "string"
+   }'
+
+A successful response would look like:
+
+.. code-block:: bash
+   :emphasize-lines: 2,5
+
+   {
+      "container_id": "8PAnJWgwJNKLp",
+      "container_tracking_id": "K_NS_BOX_ALI0006",
+      "container_type": "blood aliquot freezer box",
+      "location": "MCC1: NorthShore University HealthSystem",
+      "status": "container.created",
+      "tracking_id": "285590095441"
+   }
 
 
 List biosamples in each container
@@ -282,7 +367,7 @@ The curl request would be:
    curl -X 'PATCH' \
       'https://vbr-api.a2cps.cloud/biospecimens/7yAnxZN36BJJb/status' \
       -H 'accept: application/json' \
-      -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI0ZTcyNTM2NC1hNzUzLTRkMjEtYmI2Ni1kYTgxZDEzZjRmNzIiLCJpc3MiOiJodHRwczovL2EyY3BzZGV2LnRhcGlzLmlvL3YzL3Rva2VucyIsInN1YiI6InNnb3BhbEBhMmNwc2RldiIsInRhcGlzL3RlbmFudF9pZCI6ImEyY3BzZGV2IiwidGFwaXMvdG9rZW5fdHlwZSI6ImFjY2VzcyIsInRhcGlzL2RlbGVnYXRpb24iOmZhbHNlLCJ0YXBpcy9kZWxlZ2F0aW9uX3N1YiI6bnVsbCwidGFwaXMvdXNlcm5hbWUiOiJzZ29wYWwiLCJ0YXBpcy9hY2NvdW50X3R5cGUiOiJ1c2VyIiwiZXhwIjoxNjQzNjcwODI3LCJ0YXBpcy9jbGllbnRfaWQiOm51bGwsInRhcGlzL2dyYW50X3R5cGUiOiJwYXNzd29yZCJ9.DwyzMvLGm1hPvxFmMRpPGJ9DhyZqQTlp_newlgRCFvKsywDVnGofOD3s62OBxRJvuaxdlfSKoWTnPzGTfuFfItKCGzOWl9USkvKnroRq8m47z5gX1m3DkqOE_zrzyQn-u4nqJvFGWOLOPB94W5mgf4jFncU2LXmNdjy5eJvmqSXe3FqKYHxsPRweZc12ykgUYeaJSmd45Pce8bG2-KTLEcvX3ECh6sjtJ7w5rZY5ASn0BPBayYMUtUsJrV5dKwmAmRWbxjDvBf9sHysxpUj2FwkbIsMTwSyDUN9Euii0zbKfYcUg3fBJUYF86ll3CNpixzxe23T6Tr9jbf2HE5PDTQ' \
+      -H 'Authorization: Bearer Token \
       -H 'Content-Type: application/json' \
       -d '{
          "status": "inflight",

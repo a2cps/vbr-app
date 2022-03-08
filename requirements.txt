@@ -3,6 +3,6 @@ email-validator
 fastapi
 gunicorn
 uvicorn[standard]
-tapipy==1.0.3
+tapipy==1.0.7
 git+https://github.com/a2cps/python-vbr.git@main#egg=python_vbr
 python-multipart

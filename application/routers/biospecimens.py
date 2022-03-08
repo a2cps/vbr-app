@@ -215,7 +215,7 @@ def get_biospecimen_by_id_with_extended_phi(
     dependencies=[Depends(vbr_read_public)],
     response_model=Biospecimen,
 )
-def get_biospecimen_by_id(
+def get_biospecimen_by_tracking_id(
     tracking_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):

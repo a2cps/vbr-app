@@ -22,6 +22,12 @@ class ContainerStatuses(Enum):
     DESTROYED = "destroyed"
 
 
+class RunListStatuses(Enum):
+    READY = "created"
+    PROCESSING = "processing"
+    PROCESSED = "processed"
+
+
 class ShipmentStatuses(Enum):
     CREATED = "created"
     SHIPPED = "shipped"
@@ -38,6 +44,11 @@ class SetBiospecimenStatus(BaseModel):
 
 class SetContainerStatus(BaseModel):
     status: ContainerStatuses
+    comment: Optional[str]
+
+
+class SetRunListStatus(BaseModel):
+    status: RunListStatuses
     comment: Optional[str]
 
 

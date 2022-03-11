@@ -6,8 +6,8 @@ __all__ = ["CreateRunList"]
 
 
 class CreateRunList(BaseModel):
-    name: str
+    name: Optional[str]
     description: Optional[str]
-    sender_name: Optional[str]
     tracking_id: Optional[str]
-    biospecimen_ids: Optional[List[str]] = Field(default=[])
+    # TODO - consider adding this in
+    # biospecimen_ids: Optional[List[str]] = Field(default=[])

@@ -6,7 +6,7 @@ __all__ = ["AddBiospecimen", "PartitionBiospecimen"]
 
 
 class AddBiospecimen(BaseModel):
-    biospeciment_id: str
+    biospecimen_id: str
     comment: Optional[str]
 
 

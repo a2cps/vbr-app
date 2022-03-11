@@ -4,7 +4,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-__all__ = ["RunList"]
+__all__ = ["BiospecimenIds", "RunList"]
+
+
+class BiospecimenIds(BaseModel):
+    biospecimen_id: str
+    biospecimen_tracking_id: Optional[str]
 
 
 class RunList(BaseModel):

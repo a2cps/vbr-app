@@ -23,7 +23,7 @@ class ContainerStatuses(Enum):
 
 
 class RunListStatuses(Enum):
-    READY = "created"
+    READY = "ready"
     PROCESSING = "processing"
     PROCESSED = "processed"
 

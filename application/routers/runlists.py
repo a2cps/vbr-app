@@ -8,7 +8,10 @@ from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_strin
 
 # from application.routers import container_types
 from application.routers.models.actions.comment import Comment
-from application.routers.models.actions.runlist import CreateRunList
+from application.routers.models.actions.runlist import (
+    CreateRunList,
+    CreateRunListWithBiospecimens,
+)
 
 from ..dependencies import *
 from .models import (
@@ -64,61 +67,51 @@ def list_runlists(
 
 
 # POST /runlists
-# Create a runlist
+# Create a new runlist
 @router.post("/", dependencies=[Depends(vbr_write_public)], response_model=RunList)
 def create_runlist(
-    body: CreateRunList = Body(...),
+    body: CreateRunListWithBiospecimens = Body(...),
     client: VBR_Api = Depends(vbr_admin_client),
 ):
     """Create a RunList.
 
     Requires: **VBR_WRITE_PUBLIC**"""
-    sender_name = body.sender_name
+
     name = body.name
+    description = body.description
     tracking_id = sanitize_identifier_string(body.tracking_id)
-    project_local_id = sanitize_identifier_string(body.project_id)
-    ship_to_local_id = sanitize_identifier_string(body.ship_to_location_id)
-    ship_from_local_id = sanitize_identifier_string(body.ship_from_location_id)
-    container_ids = [sanitize_identifier_string(c) for c in body.container_ids]
-    project_id = client.get_project_by_local_id(project_local_id).project_id
-    ship_to_id = client.get_location_by_local_id(ship_to_local_id).location_id
-    ship_from_id = client.get_location_by_local_id(ship_from_local_id).location_id
+    biospecimen_ids = body.biospecimen_ids
+
     try:
-        containers = [client.get_container_by_local_id(c) for c in container_ids]
+        biospecimens = [client.get_measurement_by_local_id(b) for b in biospecimen_ids]
     except Exception as exc:
         raise HTTPException(
-            status_code=500,
-            detail="One or more container_ids could not be resolved: {0}".format(exc),
+            status_code=404,
+            detail="One or more biospecimen_ids could not be resolved: {0}".format(exc),
         )
-    data = {
-        "name": name,
-        "sender_name": sender_name,
-        "tracking_id": tracking_id,
-        "project_id": project_id,
-        "ship_to_id": ship_to_id,
-        "ship_from_id": ship_from_id,
-    }
+    data = {"name": name, "description": description, "tracking_id": tracking_id}
     try:
-        shipment = client.create_shipment(**data)
+        collection = client.create_collection(**data)
         # Ff containers are provided, associate them with Shipment
-        for container in containers:
+        for measurement in biospecimens:
             try:
-                client.associate_container_with_shipment(container, shipment)
+                client.associate_measurement_with_collection(measurement, collection)
             except Exception:
                 # TODO improve error handling
                 raise
-        # TODO Create EasyPost tracker
-        # Return created shipment
-        query = {"shipment_id": {"operator": "eq", "value": shipment.local_id}}
+
+        # Return created runlist
+        # The query is on on runlist_id because we have mapped the VBR collection schema to
+        # the more specific runlist schema in our runlists_base view
+        query = {"runlist_id": {"operator": "eq", "value": collection.local_id}}
         row = transform(
             client.vbr_client.query_view_rows(
-                view_name="shipments_public", query=query, limit=1, offset=0
+                view_name="runlists_base", query=query, limit=1, offset=0
             )[0]
         )
         return row
     except Exception as exc:
         raise
-        # raise HTTPException(status_code=500, detail=str(exc))
 
 
 # GET /runlists/:id:
@@ -145,6 +138,37 @@ def get_runlist_by_id(
         raise HTTPException(status_code=404)
     except Exception:
         raise
+
+
+# PATCH /runlists/:id:
+# Update runlist name, description, and/or tracking_id
+@router.patch(
+    "/{runlist_id}", dependencies=[Depends(vbr_write_public)], response_model=RunList
+)
+def update_runlist(
+    runlist_id: str,
+    body: CreateRunList = Body(...),
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    pass
+
+    runlist_id = sanitize_identifier_string(runlist_id)
+    runlist = client.get_collection_by_local_id(runlist_id)
+    if body.name:
+        runlist.name = body.name
+    if body.description:
+        runlist.description = body.description
+    if body.tracking_id:
+        runlist.tracking_id = sanitize_identifier_string(body.tracking_id)
+    runlist = client.vbr_client.update_row(runlist)
+    query = {"runlist_id": {"operator": "eq", "value": runlist.local_id}}
+    # raise SystemError(query)
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="runlists_base", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
 
 
 # GET /runlists/tracking/:id:
@@ -183,7 +207,7 @@ def get_runlist_by_tracking_id(
     dependencies=[Depends(vbr_read_public)],
     response_model=List[BiospecimenIds],
 )
-def get_biospeciments_in_runlist(
+def get_biospecimens_in_runlist(
     runlist_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):

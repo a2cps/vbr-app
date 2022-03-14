@@ -2,7 +2,12 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-__all__ = ["PartitionBiospecimen"]
+__all__ = ["AddBiospecimen", "PartitionBiospecimen"]
+
+
+class AddBiospecimen(BaseModel):
+    biospecimen_id: str
+    comment: Optional[str]
 
 
 class PartitionBiospecimen(BaseModel):

@@ -20,6 +20,7 @@ from .routers import (
     locations,
     organizations,
     projects,
+    runlists,
     shipments,
     subjects,
     units,
@@ -71,6 +72,10 @@ tags_metadata = [
         "description": "Projects are collections of Subjects.",
     },
     {
+        "name": "runlists",
+        "description": "RunLists are virtual collections of Biospecimens.",
+    },
+    {
         "name": "shipments",
         "description": "Shipments convey Containers between Locations.",
     },
@@ -95,7 +100,7 @@ tags_metadata = [
 app = FastAPI(
     title="A2CPS Virtual Biospecimen Repository API",
     description=description,
-    version="0.1.0",
+    version="0.2.0",
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
     debug=settings.app_debug,
     openapi_tags=tags_metadata,
@@ -206,6 +211,7 @@ app.include_router(container_types.router)
 app.include_router(locations.router)
 app.include_router(organizations.router)
 app.include_router(projects.router)
+app.include_router(runlists.router)
 app.include_router(shipments.router)
 app.include_router(subjects.router)
 app.include_router(units.router)

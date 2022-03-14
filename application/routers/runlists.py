@@ -2,7 +2,6 @@
 from typing import Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
-from pyparsing import col
 from vbr.api import VBR_Api, tracking_id
 from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 

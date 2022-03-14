@@ -75,7 +75,10 @@ def create_runlist(
 ):
     """Create a RunList.
 
-    Requires: **VBR_WRITE_PUBLIC**"""
+    Requires: **VBR_WRITE_PUBLIC**
+
+    Note: If no tracking ID is provided, one will be generated.
+    """
 
     name = body.name
     description = body.description
@@ -150,7 +153,10 @@ def update_runlist(
     body: CreateRunList = Body(...),
     client: VBR_Api = Depends(vbr_admin_client),
 ):
-    pass
+    """Update a RunList.
+
+    Requires: **VBR_WRITE_PUBLIC**
+    """
 
     runlist_id = sanitize_identifier_string(runlist_id)
     runlist = client.get_collection_by_local_id(runlist_id)
@@ -211,7 +217,7 @@ def get_biospecimens_in_runlist(
     runlist_id: str,
     client: VBR_Api = Depends(vbr_admin_client),
 ):
-    """Get Biospecimens in a RunList.
+    """List Biospecimens in a RunList.
 
     Requires: **VBR_READ_PUBLIC**
     """

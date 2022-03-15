@@ -17,6 +17,7 @@ from .models import (
     Event,
     GenericResponse,
     PartitionBiospecimen,
+    RunListBase,
     SetBiospecimenStatus,
     SetContainer,
     SetTrackingId,
@@ -396,3 +397,30 @@ def add_biospecimen_comment(
 
 # TODO
 # POST /partition - partition a biospecimen into two
+
+# GET /{biospecimen_id}/runlists
+@router.get(
+    "/{biospecimen_id}/runlists",
+    dependencies=[Depends(vbr_read_public)],
+    response_model=List[RunListBase],
+)
+def get_runlists_for_biospecimen(
+    biospecimen_id: str,
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Get Runlists for a Biospecimen.
+
+    Requires: **VBR_READ_PUBLIC**"""
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
+    # TODO - change name of field to shipment_tracking_id after updating containers_public.sql
+    query = {"biospecimen_id": {"operator": "=", "value": biospecimen_id}}
+    rows = [
+        transform(c)
+        for c in client.vbr_client.query_view_rows(
+            view_name="runlists_biospecimens_public",
+            query=query,
+            limit=0,
+            offset=0,
+        )
+    ]
+    return rows

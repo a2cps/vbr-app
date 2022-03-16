@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     app_debug: bool = True
     app_default_page_size: int = 50
     app_log_path = "."
+    app_build_version = ""
 
     class Config:
         env_file = "env.rc"

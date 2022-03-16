@@ -1,3 +1,8 @@
+TAG_COMMIT := $(shell git rev-list --abbrev-commit --tags --max-count=1)
+COMMIT := $(shell git rev-parse --short HEAD)
+DATE := $(shell git log -1 --format=%cd --date=format:"%Y%m%d")
+VERSION := $(COMMIT)-$(DATE)
+
 vbr-uninstall:
 	pip uninstall -y python_vbr
 
@@ -20,7 +25,7 @@ isort:
 	isort *.py
 
 image:
-	docker build --no-cache -t a2cps/vbr_api .
+	docker build --build-arg BUILD_VERSION=$(VERSION) --no-cache -t a2cps/vbr_api .
 
 build_ecr: image
 	docker tag a2cps/vbr_api:latest 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest

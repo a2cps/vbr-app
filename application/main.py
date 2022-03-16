@@ -26,6 +26,7 @@ from .routers import (
     units,
 )
 from .utils import use_route_names_as_operation_ids
+from .version import get_version
 
 description = """
 This API manages Biospecimen logistics and processing.
@@ -100,7 +101,7 @@ tags_metadata = [
 app = FastAPI(
     title="A2CPS Virtual Biospecimen Repository API",
     description=description,
-    version="0.2.0",
+    version=get_version(),
     terms_of_service="https://portal.tacc.utexas.edu/tacc-usage-policy",
     debug=settings.app_debug,
     openapi_tags=tags_metadata,
@@ -145,7 +146,7 @@ class ApiStatus(BaseModel):
 
 def versions():
     v = {
-        "app": app.version,
+        "api": app.version,
         "python_vbr": metadata.version("python_vbr"),
         "tapipy": metadata.version("tapipy"),
     }

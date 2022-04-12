@@ -1,8 +1,9 @@
+from lib2to3.pytree import Base
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-__all__ = ["AddBiospecimen", "PartitionBiospecimen"]
+__all__ = ["AddBiospecimen", "PartitionBiospecimen", "SetVolume"]
 
 
 class AddBiospecimen(BaseModel):
@@ -14,4 +15,9 @@ class PartitionBiospecimen(BaseModel):
     tracking_id: Optional[str] = Field(
         None, title="Optional tracking ID for new Measurement"
     )
+    comment: Optional[str] = Field(None, title="Optional comment")
+
+
+class SetVolume(BaseModel):
+    volume: float
     comment: Optional[str] = Field(None, title="Optional comment")

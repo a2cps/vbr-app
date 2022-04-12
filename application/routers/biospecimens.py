@@ -21,6 +21,7 @@ from .models import (
     SetBiospecimenStatus,
     SetContainer,
     SetTrackingId,
+    SetVolume,
     transform,
 )
 from .utils import parameters_to_query
@@ -310,6 +311,37 @@ def update_biospecimen_tracking_id(
     measurement = client.get_measurement_by_local_id(biospecimen_id)
     measurement.tracking_id = tracking_id
     measurement = client.vbr_client.update_row(measurement)
+    query = {"biospecimen_id": {"operator": "eq", "value": measurement.local_id}}
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="biospecimens_details", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
+
+
+# PATCH /{biospecimen_id}/volume
+@router.patch(
+    "/{biospecimen_id}/volume",
+    dependencies=[Depends(vbr_write_public)],
+    response_model=Biospecimen,
+)
+def update_biospecimen_volume(
+    biospecimen_id: str,
+    body: SetVolume = Body(...),
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Update a Biospecimen volume.
+
+    Requires: **VBR_WRITE_PUBLIC**"""
+    biospecimen_id = sanitize_identifier_string(biospecimen_id)
+    volume = body.volume
+    if volume < 0.0:
+        raise ValueError("Volume cannot be negative")
+    measurement = client.get_measurement_by_local_id(biospecimen_id)
+    measurement.volume = volume
+    measurement = client.vbr_client.update_row(measurement)
+
     query = {"biospecimen_id": {"operator": "eq", "value": measurement.local_id}}
     row = transform(
         client.vbr_client.query_view_rows(

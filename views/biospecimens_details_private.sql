@@ -12,6 +12,7 @@ SELECT
     biospecimens_base.project,
     biospecimens_base.status,
     biospecimens_base.unit,
+    biospecimens_base.volume,
     collections_base.subject_guid,
     collections_base.subject_id,
     collections_base.bscp_time_blood_draw,

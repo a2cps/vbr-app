@@ -11,7 +11,8 @@ SELECT
     container.tracking_id AS container_tracking_id,
     project.name AS project,
     status_row.name AS status,
-    unit.name AS unit
+    unit.name AS unit,
+    measurement.volume
 FROM
     a2cpsdev.measurement
 INNER JOIN

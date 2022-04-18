@@ -158,7 +158,7 @@ def partition_biospecimen(
     new_tracking_id = vbr.utils.sanitize_identifier_string(body.tracking_id)
     measurement = client.get_measurement_by_local_id(biospecimen_id)
     new_measurement = client.partition_measurement(
-        measurement, tracking_id=new_tracking_id, comment=comment
+        measurement, volume=body.volume, tracking_id=new_tracking_id, comment=comment
     )
     query = {"biospecimen_id": {"operator": "eq", "value": new_measurement.local_id}}
     row = transform(
@@ -336,11 +336,10 @@ def update_biospecimen_volume(
     Requires: **VBR_WRITE_PUBLIC**"""
     biospecimen_id = sanitize_identifier_string(biospecimen_id)
     volume = body.volume
-    if volume < 0.0:
-        raise ValueError("Volume cannot be negative")
+    comment = body.comment
+
     measurement = client.get_measurement_by_local_id(biospecimen_id)
-    measurement.volume = volume
-    measurement = client.vbr_client.update_row(measurement)
+    measurement = client.set_volume(measurement, volume, comment)
 
     query = {"biospecimen_id": {"operator": "eq", "value": measurement.local_id}}
     row = transform(

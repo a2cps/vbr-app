@@ -12,6 +12,7 @@ class AddBiospecimen(BaseModel):
 
 
 class PartitionBiospecimen(BaseModel):
+    volume: float
     tracking_id: Optional[str] = Field(
         None, title="Optional tracking ID for new Measurement"
     )

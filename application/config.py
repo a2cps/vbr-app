@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     app_otp_key: str = "Wx9H2K9fJzmnMKKquGca76ALdY8MaaMp"
     app_public_cname: str = "localhost"
     app_log_level: str = "DEBUG"
-    app_debug: bool = True
+    app_debug: bool = False
     app_default_page_size: int = 50
-    app_log_path = "."
-    app_build_version = ""
+    app_log_path: str = "."
+    app_build_version: str = ""
 
     class Config:
         env_file = "env.rc"

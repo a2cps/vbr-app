@@ -22,4 +22,3 @@ INNER JOIN
 INNER JOIN
     a2cpsdev.status status_row
     ON status_row.status_id = shipment.status
-    

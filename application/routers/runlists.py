@@ -4,6 +4,7 @@ from typing import Dict
 from fastapi import APIRouter, Body, Depends, HTTPException
 from vbr.api import VBR_Api, tracking_id
 from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
+from application.routers.models import runlist_type
 
 # from application.routers import container_types
 from application.routers.models.actions.comment import Comment
@@ -39,6 +40,7 @@ def list_runlists(
     tracking_id: Optional[str] = None,
     name: Optional[str] = None,
     status_name: Optional[str] = None,
+    type: Optional[str] = None,
     client: VBR_Api = Depends(vbr_admin_client),
     common=Depends(limit_offset),
 ):
@@ -52,6 +54,7 @@ def list_runlists(
         tracking_id=tracking_id,
         name=name,
         status_name=status_name,
+        type=type,
     )
     rows = [
         transform(c)
@@ -83,6 +86,14 @@ def create_runlist(
     description = body.description
     tracking_id = sanitize_identifier_string(body.tracking_id)
     biospecimen_ids = body.biospecimen_ids
+    runlist_type_id = body.runlist_type_id  # hashid
+
+    try:
+        runlist_type = client.get_collection_type_by_local_id(runlist_type_id)
+    except Exception:
+        raise HTTPException(
+            404, "Unable to find runlist type {0}".format(runlist_type_id)
+        )
 
     try:
         biospecimens = [client.get_measurement_by_local_id(b) for b in biospecimen_ids]
@@ -91,7 +102,12 @@ def create_runlist(
             status_code=404,
             detail="One or more biospecimen_ids could not be resolved: {0}".format(exc),
         )
-    data = {"name": name, "description": description, "tracking_id": tracking_id}
+    data = {
+        "name": name,
+        "description": description,
+        "tracking_id": tracking_id,
+        "collection_type_id": runlist_type.collection_type_id,
+    }
     try:
         collection = client.create_collection(**data)
         # Ff containers are provided, associate them with Shipment
@@ -113,7 +129,7 @@ def create_runlist(
         )
         return row
     except Exception as exc:
-        raise
+        raise HTTPException(500, "Error creating runlist: {0}".format(exc))
 
 
 # GET /runlists/:id:

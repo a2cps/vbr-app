@@ -21,3 +21,4 @@ class RunListBase(BaseModel):
 class RunList(RunListBase):
     status_name: Optional[str]
     tracking_id: Optional[str]
+    type: Optional[str]

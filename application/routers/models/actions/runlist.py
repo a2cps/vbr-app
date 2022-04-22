@@ -6,6 +6,7 @@ __all__ = ["CreateRunList", "CreateRunListWithBiospecimens"]
 
 
 class CreateRunList(BaseModel):
+    runlist_type_id: str
     name: Optional[str]
     description: Optional[str]
     tracking_id: Optional[str]

@@ -8,6 +8,7 @@ from .location import *
 from .organization import *
 from .project import *
 from .runlist import *
+from .runlist_type import *
 from .shipment import *
 from .subject import *
 from .transformers import transform

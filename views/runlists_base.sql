@@ -5,8 +5,10 @@ SELECT collection.collection_id AS _runlist_id,
     collection.description as description,
     collection.creation_time,
     status.name AS status_name,
-    status.description AS status_description
+    status.description AS status_description,
+    collection_type.name as type
    FROM (a2cpsdev.collection
-     LEFT JOIN a2cpsdev.status ON (status.status_id = collection.status))
-   WHERE collection.collection_type = 1
+     LEFT JOIN a2cpsdev.status ON (status.status_id = collection.status)
+     LEFT JOIN a2cpsdev.collection_type ON (collection_type.collection_type_id = collection.collection_type))
+   WHERE collection.collection_type >= 1
    ORDER BY _runlist_id ASC

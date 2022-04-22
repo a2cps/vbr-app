@@ -21,6 +21,7 @@ from .routers import (
     organizations,
     projects,
     runlists,
+    runlist_types,
     shipments,
     subjects,
     units,
@@ -75,6 +76,10 @@ tags_metadata = [
     {
         "name": "runlists",
         "description": "RunLists are virtual collections of Biospecimens.",
+    },
+    {
+        "name": "runlist_types",
+        "description": "RunLists have a RunListType.",
     },
     {
         "name": "shipments",
@@ -213,6 +218,7 @@ app.include_router(locations.router)
 app.include_router(organizations.router)
 app.include_router(projects.router)
 app.include_router(runlists.router)
+app.include_router(runlist_types.router)
 app.include_router(shipments.router)
 app.include_router(subjects.router)
 app.include_router(units.router)

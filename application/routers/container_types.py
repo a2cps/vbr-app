@@ -6,7 +6,7 @@ from vbr.api import VBR_Api
 from vbr.utils.barcode import generate_barcode_string, sanitize_identifier_string
 
 from ..dependencies import *
-from .models import ContainerType, transform
+from .models import ContainerType, CreateContainerType, GenericResponse, transform
 from .utils import parameters_to_query
 
 router = APIRouter(
@@ -66,6 +66,53 @@ def get_container_type_by_id(
     return row
 
 
+# POST /
+@router.post(
+    "/", dependencies=[Depends(vbr_write_public)], response_model=ContainerType
+)
+def create_container_type(
+    body: CreateContainerType = Body(...),
+    client: Tapis = Depends(vbr_admin_client),
+):
+    """Create a new ContainerType.
+
+    Requires: **VBR_WRITE_PUBLIC**
+    """
+
+    try:
+        container_type = client.create_container_type(
+            name=body.name, description=body.description
+        )
+    except Exception as exc:
+        raise HTTPException(500, "Failed to create new container type: {0}".format(exc))
+
+    query = {"container_type_id": {"operator": "eq", "value": container_type.local_id}}
+    row = transform(
+        client.vbr_client.query_view_rows(
+            view_name="container_types_public", query=query, limit=1, offset=0
+        )[0]
+    )
+    return row
+
+
+# DELETE /{container_type_id}
+@router.delete(
+    "/{container_type_id}",
+    dependencies=[Depends(vbr_admin)],
+    response_model=GenericResponse,
+)
+def delete_container_type(
+    container_type_id: str,
+    client: VBR_Api = Depends(vbr_admin_client),
+):
+    """Delete a ContainerType.
+
+    Requires: **VBR_ADMIN**"""
+    container_type_id = vbr.utils.sanitize_identifier_string(container_type_id)
+    container_type = client.get_container_type_by_local_id(container_type_id)
+    client.vbr_client.delete_row(container_type)
+    return {"message": "ContainerType deleted"}
+
+
 # TODO Later
 # PUT /{container_type_id} - update container_type
-# POST / - create new container_type

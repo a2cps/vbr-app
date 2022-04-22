@@ -11,6 +11,11 @@ class BiospecimenStatuses(Enum):
     DEPLETED = "depleted"
     LOST = "lost"
     DESTROYED = "destroyed"
+    INUSE = "inuse"
+    AVAILABLE = "available"
+    CHANGED_VOLUME = "changed_volume"
+    THAWED = "thawed"
+    FROZEN = "frozen"
 
 
 class ContainerStatuses(Enum):

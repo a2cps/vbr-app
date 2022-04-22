@@ -84,16 +84,39 @@ def create_shipment(
     ship_to_local_id = sanitize_identifier_string(body.ship_to_location_id)
     ship_from_local_id = sanitize_identifier_string(body.ship_from_location_id)
     container_ids = [sanitize_identifier_string(c) for c in body.container_ids]
-    project_id = client.get_project_by_local_id(project_local_id).project_id
-    ship_to_id = client.get_location_by_local_id(ship_to_local_id).location_id
-    ship_from_id = client.get_location_by_local_id(ship_from_local_id).location_id
+
+    try:
+        project_id = client.get_project_by_local_id(project_local_id).project_id
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="Could not find project {0}".format(project_local_id),
+        )
+
+    try:
+        ship_to_id = client.get_location_by_local_id(ship_to_local_id).location_id
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="Could not find location {0}".format(ship_to_local_id),
+        )
+
+    try:
+        ship_from_id = client.get_location_by_local_id(ship_from_local_id).location_id
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="Could not find location {0}".format(ship_from_local_id),
+        )
+
     try:
         containers = [client.get_container_by_local_id(c) for c in container_ids]
     except Exception as exc:
         raise HTTPException(
-            status_code=500,
+            status_code=404,
             detail="One or more container_ids could not be resolved: {0}".format(exc),
         )
+
     data = {
         "name": name,
         "sender_name": sender_name,
@@ -210,11 +233,40 @@ def add_container_to_shipment(
     Requires: **VBR_WRITE_PUBLIC**"""
     tracking_id = sanitize_identifier_string(tracking_id)
     container_id = sanitize_identifier_string(body.container_id)
-    shipment = client.get_shipment_by_tracking_id(tracking_id)
-    location = client.get_location(shipment.ship_from)
-    container = client.get_container_by_local_id(container_id)
-    client.associate_container_with_shipment(container, shipment)
-    client.relocate_container(container, location, sync=False)
+    try:
+        shipment = client.get_shipment_by_tracking_id(tracking_id)
+    except Exception:
+        raise HTTPException(
+            status_code=404, detail="Shipment {0} not found".format(tracking_id)
+        )
+
+    try:
+        container = client.get_container_by_local_id(container_id)
+    except Exception:
+        raise HTTPException(
+            status_code=404, detail="Container {0} not found".format(container_id)
+        )
+
+    try:
+        location = client.get_location(shipment.ship_from)
+    except Exception:
+        raise HTTPException(
+            status_code=404, detail="Location {0} not found".format(shipment.ship_from)
+        )
+
+    try:
+        client.associate_container_with_shipment(container, shipment)
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to associate container with shipment"
+        )
+
+    try:
+        client.relocate_container(container, location, sync=False)
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to update container location"
+        )
 
     # Display updated list of containers associated with shipment
     query = {"tracking_id": {"operator": "=", "value": tracking_id}}

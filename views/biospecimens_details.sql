@@ -23,7 +23,8 @@ SELECT
     collections_base.bscp_procby_initials,
     collections_base.bscp_protocol_dev,
     collections_base.bscp_comments,
-    containers_base.location
+    containers_base.location_id,
+    containers_base.location_display_name
 FROM a2cpsdev.biospecimens_base
 INNER JOIN a2cpsdev.collections_base
     ON biospecimens_base.collection_id = collections_base.collection_id

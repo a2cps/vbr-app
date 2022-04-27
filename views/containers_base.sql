@@ -3,10 +3,10 @@ SELECT
     container.local_id AS container_id,
     container.tracking_id AS container_tracking_id,
     container_type.name as container_type,
-    location.display_name as location,
+    location.local_id as location_id,
+    location.display_name as location_display_name,
     status.name as status,
-    ship.tracking_id,
-    location.location_id as location_id
+    ship.tracking_id
 FROM a2cpsdev.container
 INNER JOIN a2cpsdev.container_type
 	ON container_type.container_type_id = container.container_type
@@ -18,4 +18,3 @@ LEFT JOIN a2cpsdev.container_in_shipment cont_in_ship
 	ON cont_in_ship.container = container.container_id
 LEFT JOIN a2cpsdev.shipment ship
 	ON ship.shipment_id = cont_in_ship.shipment
-	

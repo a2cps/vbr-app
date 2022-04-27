@@ -35,7 +35,8 @@ class Biospecimen(BaseModel):
     bscp_procby_initials: Optional[str]
     bscp_protocol_dev: Optional[bool]
     bscp_comments: Optional[str]
-    location: Optional[str]
+    location_id: Optional[str]
+    location_display_name: Optional[str]
 
 
 class BiospecimenPrivate(Biospecimen):

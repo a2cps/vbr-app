@@ -11,6 +11,7 @@ from application.routers.models.actions.comment import Comment
 from application.routers.models.actions.runlist import (
     CreateRunList,
     CreateRunListWithBiospecimens,
+    UpdateRunList,
 )
 
 from ..dependencies import *
@@ -41,6 +42,8 @@ def list_runlists(
     name: Optional[str] = None,
     status_name: Optional[str] = None,
     type: Optional[str] = None,
+    location_id: Optional[str] = None,
+    location_display_name: Optional[str] = None,
     client: VBR_Api = Depends(vbr_admin_client),
     common=Depends(limit_offset),
 ):
@@ -55,11 +58,13 @@ def list_runlists(
         name=name,
         status_name=status_name,
         type=type,
+        location_id=location_id,
+        location_display_name=location_display_name,
     )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(
-            view_name="runlists_base",
+            view_name="runlists_public",
             query=query,
             limit=common["limit"],
             offset=common["offset"],
@@ -87,6 +92,7 @@ def create_runlist(
     tracking_id = sanitize_identifier_string(body.tracking_id)
     biospecimen_ids = body.biospecimen_ids
     runlist_type_id = body.runlist_type_id  # hashid
+    location_id = body.location_id
 
     try:
         runlist_type = client.get_collection_type_by_local_id(runlist_type_id)
@@ -94,6 +100,11 @@ def create_runlist(
         raise HTTPException(
             404, "Unable to find runlist type {0}".format(runlist_type_id)
         )
+
+    try:
+        location = client.get_location_by_local_id(location_id)
+    except Exception:
+        raise HTTPException(404, "Unable to find location {0}".format(location_id))
 
     try:
         biospecimens = [client.get_measurement_by_local_id(b) for b in biospecimen_ids]
@@ -107,6 +118,7 @@ def create_runlist(
         "description": description,
         "tracking_id": tracking_id,
         "collection_type_id": runlist_type.collection_type_id,
+        "location_id": location.location_id,
     }
     try:
         collection = client.create_collection(**data)
@@ -165,7 +177,7 @@ def get_runlist_by_id(
 )
 def update_runlist(
     runlist_id: str,
-    body: CreateRunList = Body(...),
+    body: UpdateRunList = Body(...),
     client: VBR_Api = Depends(vbr_admin_client),
 ):
     """Update a RunList.
@@ -181,6 +193,12 @@ def update_runlist(
         runlist.description = body.description
     if body.tracking_id:
         runlist.tracking_id = sanitize_identifier_string(body.tracking_id)
+    # Logic for this one is a little different as we need to fetch the location
+    # in order to know its primary key
+    if body.location_id:
+        location = client.get_location_by_local_id(body.location_id)
+        runlist.location = location.location_id
+
     runlist = client.vbr_client.update_row(runlist)
     query = {"runlist_id": {"operator": "eq", "value": runlist.local_id}}
     # raise SystemError(query)

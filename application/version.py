@@ -2,7 +2,7 @@ import os
 
 __all__ = ["get_version"]
 
-API_VERSION = "0.3.0"
+API_VERSION = "0.3.1"
 
 
 def get_version():

@@ -12,7 +12,8 @@ SELECT
     project.name AS project,
     status_row.name AS status,
     unit.name AS unit,
-    measurement.volume
+    measurement.volume,
+    biosample.protocol
 FROM
     a2cpsdev.measurement
 INNER JOIN

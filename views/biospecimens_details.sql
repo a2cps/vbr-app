@@ -24,9 +24,12 @@ SELECT
     collections_base.bscp_protocol_dev,
     collections_base.bscp_comments,
     containers_base.location_id,
-    containers_base.location_display_name
+    containers_base.location_display_name,
+    protocol.name as protocol_name
 FROM a2cpsdev.biospecimens_base
 INNER JOIN a2cpsdev.collections_base
     ON biospecimens_base.collection_id = collections_base.collection_id
 INNER JOIN a2cpsdev.containers_base
     ON biospecimens_base.container_id = containers_base.container_id
+INNER JOIN a2cpsdev.protocol
+    ON biospecimens_base.protocol = protocol.protocol_id

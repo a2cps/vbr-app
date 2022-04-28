@@ -37,6 +37,7 @@ class Biospecimen(BaseModel):
     bscp_comments: Optional[str]
     location_id: Optional[str]
     location_display_name: Optional[str]
+    protocol_name: Optional[str]
 
 
 class BiospecimenPrivate(Biospecimen):

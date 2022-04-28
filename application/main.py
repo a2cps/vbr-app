@@ -1,9 +1,13 @@
 import os
 import time
 from datetime import datetime, timedelta
-from importlib import metadata
 from typing import Dict
 from uuid import uuid4
+
+try:
+    from importlib import metadata
+except ImportError:  # for Python<3.8
+    import importlib_metadata as metadata
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
@@ -20,8 +24,8 @@ from .routers import (
     locations,
     organizations,
     projects,
-    runlists,
     runlist_types,
+    runlists,
     shipments,
     subjects,
     units,

@@ -15,7 +15,7 @@ __all__ = [
 class Biospecimen(BaseModel):
     biospecimen_id: str
     tracking_id: Optional[str]
-    creation_time: datetime
+    creation_time: Optional[datetime]
     biospecimen_type: str
     collection_id: Optional[str]
     collection_tracking_id: Optional[str]

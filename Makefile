@@ -24,8 +24,11 @@ lint:
 isort:
 	isort *.py
 
+image-local:
+	docker buildx build --platform linux/arm64 --load --build-arg BUILD_VERSION=$(VERSION) --no-cache -t a2cps/vbr_api .
+
 image:
-	docker build --build-arg BUILD_VERSION=$(VERSION) --no-cache -t a2cps/vbr_api .
+	docker buildx build --platform linux/amd64 --load --build-arg BUILD_VERSION=$(VERSION) --no-cache -t a2cps/vbr_api .
 
 build_ecr: image
 	docker tag a2cps/vbr_api:latest 673872715994.dkr.ecr.us-east-1.amazonaws.com/a2cps/vbr_api:latest

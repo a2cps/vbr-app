@@ -5,4 +5,4 @@ SELECT
     subjects_base.subject_guid,
     subjects_base.project
 FROM
-    a2cpsdev.subjects_base;
+    a2cps.subjects_base;

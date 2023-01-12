@@ -6,10 +6,10 @@ SELECT
     measurement.measurement_id as _biospecimen_id,
     measurement.local_id as biospecimen_id,
     measurement.tracking_id as biospecimen_tracking_id
-FROM a2cpsdev.data_event
-LEFT JOIN a2cpsdev.data_event_in_measurement de_in_bio
+FROM a2cps.data_event
+LEFT JOIN a2cps.data_event_in_measurement de_in_bio
 	ON data_event.data_event_id = de_in_bio.data_event
-LEFT JOIN a2cpsdev.measurement
+LEFT JOIN a2cps.measurement
 	ON measurement.measurement_id = de_in_bio.measurement
 WHERE comment is not NULL and measurement_id is not NULL
 ORDER BY timestamp ASC

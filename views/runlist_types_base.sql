@@ -3,4 +3,4 @@ SELECT
     collection_type.local_id AS runlist_type_id,
     collection_type.name as name,
     collection_type.description as description
-FROM a2cpsdev.collection_type
+FROM a2cps.collection_type

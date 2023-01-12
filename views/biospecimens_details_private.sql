@@ -10,6 +10,7 @@ SELECT
     biospecimens_base.container_id,
     biospecimens_base.container_tracking_id,
     biospecimens_base.project,
+    biospecimens_base.protocol,
     biospecimens_base.status,
     biospecimens_base.unit,
     biospecimens_base.volume,
@@ -29,10 +30,10 @@ SELECT
     subjects_private.sex,
     subjects_private.dem_race,
     subjects_private.ethnic
-FROM a2cpsdev.biospecimens_base
-INNER JOIN a2cpsdev.collections_base
+FROM a2cps.biospecimens_base
+INNER JOIN a2cps.collections_base
     ON biospecimens_base.collection_id = collections_base.collection_id
-INNER JOIN a2cpsdev.containers_base
+INNER JOIN a2cps.containers_base
     ON biospecimens_base.container_id = containers_base.container_id
-INNER JOIN a2cpsdev.subjects_private
+INNER JOIN a2cps.subjects_private
     ON collections_base.subject_id = subjects_private.subject_id

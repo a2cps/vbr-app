@@ -18,19 +18,19 @@ SELECT
     bscp.bscp_time_blood_draw,
     bscp.bscp_time_centrifuge 
 FROM
-    a2cpsdev.biosample
+    a2cps.biosample
 INNER JOIN
-    a2cpsdev.anatomy
+    a2cps.anatomy
     ON anatomy.anatomy_id = biosample.anatomy
 INNER JOIN
-    a2cpsdev.project
+    a2cps.project
     ON project.project_id = biosample.project
 INNER JOIN
-    a2cpsdev.protocol
+    a2cps.protocol
     ON protocol.protocol_id = biosample.protocol
 INNER JOIN
-    a2cpsdev.subject
+    a2cps.subject
     ON subject.subject_id = biosample.subject
 INNER JOIN
-    a2cpsdev.rcap_blood_sample_collection_and_processing_crf bscp 
+    a2cps.rcap_blood_sample_collection_and_processing_crf bscp 
     ON bscp.biosample_id = biosample.biosample_id

@@ -28,8 +28,8 @@ class Biospecimen(BaseModel):
     subject_id: str
     volume: Optional[float]
     bscp_time_blood_draw: Optional[datetime]
-    bscp_time_centrifuge: Optional[datetime]
-    bscp_aliquot_freezer_time: Optional[datetime]
+    bscp_time_centrifuge: Optional[str]
+    bscp_aliquot_freezer_time: Optional[str]
     bscp_deg_of_hemolysis: Optional[float]
     bscp_phleb_by_init: Optional[str]
     bscp_procby_initials: Optional[str]
@@ -38,6 +38,9 @@ class Biospecimen(BaseModel):
     location_id: Optional[str]
     location_display_name: Optional[str]
     protocol_name: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class BiospecimenPrivate(Biospecimen):

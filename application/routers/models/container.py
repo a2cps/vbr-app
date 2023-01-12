@@ -11,6 +11,7 @@ class Container(BaseModel):
     container_id: str
     container_tracking_id: Optional[str]
     container_type: str
-    location: Optional[str]
+    location_id: Optional[str]
+    location_display_name: Optional[str]
     status: Optional[str]
     tracking_id: Optional[str]

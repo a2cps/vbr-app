@@ -3,5 +3,5 @@ SELECT
     unit.local_id AS unit_id,
     unit.name as name,
     unit.description as description
-FROM a2cps.unit
+FROM a2cpsdev.unit
 

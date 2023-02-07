@@ -9,7 +9,7 @@ SELECT
     location.state_province_country as state_province_country,
     location.zip_or_postcode as zip_or_postcode,
     organization.name as organization
-FROM a2cps.location
+FROM a2cpsdev.location
 INNER JOIN
-    a2cps.organization
+    a2cpsdev.organization
     ON organization.organization_id = location.organization

@@ -27,6 +27,7 @@ class Biospecimen(BaseModel):
     subject_guid: UUID
     subject_id: str
     volume: Optional[float]
+    redcap_repeat_instance: Optional[int]
     bscp_time_blood_draw: Optional[datetime]
     bscp_time_centrifuge: Optional[str]
     bscp_aliquot_freezer_time: Optional[str]

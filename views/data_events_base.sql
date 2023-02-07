@@ -7,9 +7,9 @@ SELECT
     status.description as status_description,
     protocol.name as protocol_name,
     protocol.description as protocol_description
-FROM a2cps.data_event
-LEFT JOIN a2cps.status
+FROM a2cpsdev.data_event
+LEFT JOIN a2cpsdev.status
 	ON status.status_id = data_event.status
-LEFT JOIN a2cps.protocol
+LEFT JOIN a2cpsdev.protocol
 	ON protocol.protocol_id = data_event.protocol
 ORDER BY timestamp ASC

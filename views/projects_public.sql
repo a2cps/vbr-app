@@ -1,1 +1,1 @@
-SELECT * FROM a2cps.projects_base
+SELECT * FROM a2cpsdev.projects_base

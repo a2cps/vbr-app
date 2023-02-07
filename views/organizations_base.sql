@@ -4,5 +4,5 @@ SELECT
     organization.name as name,
     organization.description as description,
     organization.url as url
-FROM a2cps.organization
+FROM a2cpsdev.organization
 

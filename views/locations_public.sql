@@ -1,1 +1,1 @@
-SELECT * FROM a2cps.locations_base
+SELECT * FROM a2cpsdev.locations_base

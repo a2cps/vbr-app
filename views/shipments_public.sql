@@ -1,1 +1,1 @@
-SELECT * FROM a2cps.shipments_base
+SELECT * FROM a2cpsdev.shipments_base

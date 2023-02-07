@@ -1,1 +1,1 @@
-SELECT * FROM a2cps.collections_base
+SELECT * FROM a2cpsdev.collections_base

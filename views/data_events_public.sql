@@ -1,1 +1,1 @@
-SELECT * FROM a2cps.data_events_base
+SELECT * FROM a2cpsdev.data_events_base

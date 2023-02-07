@@ -1,1 +1,1 @@
-SELECT * FROM a2cps.comments_base
+SELECT * FROM a2cpsdev.comments_base

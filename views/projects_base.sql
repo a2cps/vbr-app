@@ -5,4 +5,4 @@ SELECT
     project.abbreviation as abbreviation,
     project.creation_time as creation_time,
     project.description as description
-FROM a2cpsdev.project
+FROM a2cps.project

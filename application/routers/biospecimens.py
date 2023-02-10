@@ -98,17 +98,53 @@ def list_biospecimens(
 # GET /private
 @router.get(
     "/private",
-    dependencies=[Depends(vbr_read_limited_phi)],
-    response_model=List[BiospecimenPrivate],
+    dependencies=[Depends(vbr_read_any_phi)],
+    response_model=List[BiospecimenPrivateExtended],
 )
-def list_biospecimens_with_limited_phi(
-    client: VBR_Api = Depends(vbr_admin_client), common=Depends(limit_offset)
+def list_biospecimens_with_phi(
+    biospecimen_id: Optional[str] = None,
+    tracking_id: Optional[str] = None,
+    biospecimen_type: Optional[str] = None,
+    collection_id: Optional[str] = None,
+    collection_tracking_id: Optional[str] = None,
+    container_id: Optional[str] = None,
+    container_tracking_id: Optional[str] = None,
+    location_id: Optional[str] = None,
+    location_display_name: Optional[str] = None,
+    protocol_name: Optional[str] = None,
+    project: Optional[str] = None,
+    status: Optional[str] = None,
+    unit: Optional[str] = None,
+    subject_id: Optional[str] = None,
+    subject_guid: Optional[str] = None,
+    bscp_procby_initials: Optional[str] = None,
+    bscp_protocol_dev: Optional[bool] = None,
+    client: VBR_Api = Depends(vbr_admin_client),
+    common=Depends(limit_offset),
 ):
-    """List Biospecimens with limited PHI.
+    """List Biospecimens with PHI.
 
-    Requires: **VBR_READ_LIMITED_PHI**"""
+    Requires: **VBR_READ_ANY_PHI**"""
     # TODO - build up from filters
-    query = {}
+    query = parameters_to_query(
+        biospecimen_id=biospecimen_id,
+        tracking_id=tracking_id,
+        biospecimen_type=biospecimen_type,
+        collection_id=collection_id,
+        collection_tracking_id=collection_tracking_id,
+        container_id=container_id,
+        container_tracking_id=container_tracking_id,
+        location_id=location_id,
+        location_display_name=location_display_name,
+        protocol_name=protocol_name,
+        project=project,
+        status=status,
+        unit=unit,
+        subject_id=subject_id,
+        subject_guid=subject_guid,
+        bscp_procby_initials=bscp_procby_initials,
+        bscp_protocol_dev=bscp_protocol_dev,
+    )
     rows = [
         transform(c)
         for c in client.vbr_client.query_view_rows(

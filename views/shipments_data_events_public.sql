@@ -10,10 +10,10 @@ SELECT
     shipment.shipment_id as _shipment_id,
     shipment.local_id as shipment_id,
     shipment.tracking_id as shipment_tracking_id
-FROM a2cpsdev.data_events_public
-LEFT JOIN a2cpsdev.data_event_in_shipment de_in_shp
+FROM a2cps.data_events_public
+LEFT JOIN a2cps.data_event_in_shipment de_in_shp
 	ON data_events_public._data_event_id = de_in_shp.data_event
-LEFT JOIN a2cpsdev.shipment shipment
+LEFT JOIN a2cps.shipment shipment
 	ON shipment.shipment_id = de_in_shp.shipment
 WHERE shipment_id is not NULL
 ORDER BY timestamp ASC

@@ -10,10 +10,10 @@ SELECT
     collection.collection_id as _collection_id,
     collection.local_id as collection_id,
     collection.tracking_id as collection_tracking_id
-FROM a2cpsdev.data_events_public
-LEFT JOIN a2cpsdev.data_event_in_collection de_in_shp
+FROM a2cps.data_events_public
+LEFT JOIN a2cps.data_event_in_collection de_in_shp
 	ON data_events_public._data_event_id = de_in_shp.data_event
-LEFT JOIN a2cpsdev.collection collection
+LEFT JOIN a2cps.collection collection
 	ON collection.collection_id = de_in_shp.collection
 WHERE collection_id is not NULL
 ORDER BY timestamp ASC

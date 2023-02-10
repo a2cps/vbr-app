@@ -1,1 +1,1 @@
-SELECT * FROM a2cpsdev.runlist_types_base
+SELECT * FROM a2cps.runlist_types_base

@@ -4,7 +4,7 @@ SELECT
     subject.tracking_id AS subject_guid,
     project.name AS project
 FROM
-    a2cpsdev.subject
+    a2cps.subject
 INNER JOIN
-    a2cpsdev.project
+    a2cps.project
     ON project.project_id = subject.project;

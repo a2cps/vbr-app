@@ -16,26 +16,26 @@ SELECT
     measurement.volume,
     biosample.protocol
 FROM
-    a2cpsdev.measurement
+    a2cps.measurement
 INNER JOIN
-    a2cpsdev.biosample
+    a2cps.biosample
     ON biosample.biosample_id = measurement.biosample
 INNER JOIN
-    a2cpsdev.rcap_blood_sample_collection_and_processing_crf bscp
+    a2cps.rcap_blood_sample_collection_and_processing_crf bscp
     ON bscp.biosample_id = measurement.biosample
 INNER JOIN
-    a2cpsdev.container
+    a2cps.container
     ON container.container_id = measurement.container
 INNER JOIN
-    a2cpsdev.measurement_type
+    a2cps.measurement_type
     ON measurement_type.measurement_type_id = measurement.measurement_type
 INNER JOIN
-    a2cpsdev.project
+    a2cps.project
     ON project.project_id = measurement.project
 INNER JOIN
-    a2cpsdev.status status_row
+    a2cps.status status_row
     ON status_row.status_id = measurement.status
 INNER JOIN
-    a2cpsdev.unit
+    a2cps.unit
     ON unit.unit_id = measurement.unit
 

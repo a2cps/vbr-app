@@ -14,7 +14,7 @@ SELECT
     biospecimens_base.status,
     biospecimens_base.unit,
     biospecimens_base.volume,
-    biospecimens_base.redcap_repeat_instance,
+    /*biospecimens_base.redcap_repeat_instance,*/
     collections_base.subject_guid,
     collections_base.subject_id,
     collections_base.bscp_time_blood_draw,
@@ -25,6 +25,7 @@ SELECT
     collections_base.bscp_procby_initials,
     collections_base.bscp_protocol_dev,
     collections_base.bscp_comments,
+    collections_base.redcap_repeat_instance,
     containers_base.location_id,
     containers_base.location_display_name,
     subjects_private.age,

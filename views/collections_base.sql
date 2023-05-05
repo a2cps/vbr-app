@@ -16,7 +16,8 @@ SELECT
     bscp.bscp_procby_initials,
     bscp.bscp_protocol_dev,
     bscp.bscp_time_blood_draw,
-    bscp.bscp_time_centrifuge 
+    bscp.bscp_time_centrifuge,
+    bscp.redcap_repeat_instance 
 FROM
     a2cps.biosample
 INNER JOIN

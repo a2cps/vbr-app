@@ -32,5 +32,9 @@ INNER JOIN
     a2cps.subject
     ON subject.subject_id = biosample.subject
 INNER JOIN
+    a2cps.measurement
+    ON measurement.biosample = biosample.biosample_id
+INNER JOIN
     a2cps.rcap_blood_sample_collection_and_processing_crf bscp 
     ON bscp.biosample_id = biosample.biosample_id
+        AND bscp.redcap_repeat_instance = measurement.redcap_repeat_instance

@@ -16,7 +16,8 @@ SELECT
     bscp.bscp_procby_initials,
     bscp.bscp_protocol_dev,
     bscp.bscp_time_blood_draw,
-    bscp.bscp_time_centrifuge 
+    bscp.bscp_time_centrifuge,
+    bscp.redcap_repeat_instance 
 FROM
     a2cps.biosample
 INNER JOIN
@@ -32,5 +33,10 @@ INNER JOIN
     a2cps.subject
     ON subject.subject_id = biosample.subject
 INNER JOIN
+    a2cps.measurement
+    ON measurement.biosample = biosample.biosample_id
+INNER JOIN
     a2cps.rcap_blood_sample_collection_and_processing_crf bscp 
     ON bscp.biosample_id = biosample.biosample_id
+        AND (bscp.redcap_repeat_instance = measurement.redcap_repeat_instance OR
+            (bscp.redcap_repeat_instance is NULL AND measurement.redcap_repeat_instance is NULL))

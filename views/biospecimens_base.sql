@@ -21,9 +21,6 @@ INNER JOIN
     a2cps.biosample
     ON biosample.biosample_id = measurement.biosample
 INNER JOIN
-    a2cps.rcap_blood_sample_collection_and_processing_crf bscp
-    ON bscp.biosample_id = measurement.biosample
-INNER JOIN
     a2cps.container
     ON container.container_id = measurement.container
 INNER JOIN
@@ -38,4 +35,9 @@ INNER JOIN
 INNER JOIN
     a2cps.unit
     ON unit.unit_id = measurement.unit
+INNER JOIN
+    a2cps.rcap_blood_sample_collection_and_processing_crf bscp
+    ON bscp.biosample_id = measurement.biosample
+        AND (bscp.redcap_repeat_instance = measurement.redcap_repeat_instance OR
+            (bscp.redcap_repeat_instance is NULL AND measurement.redcap_repeat_instance is NULL))
 

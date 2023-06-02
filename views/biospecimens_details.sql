@@ -14,6 +14,8 @@ SELECT
     biospecimens_base.unit,
     biospecimens_base.volume,
     biospecimens_base.redcap_repeat_instance,
+    biospecimens_base.collection_site_location_id,
+    biospecimens_base.collection_site_location_display_name,
     collections_base.subject_guid,
     collections_base.subject_id,
     collections_base.bscp_time_blood_draw,

@@ -51,6 +51,6 @@ class BiospecimenPrivate(Biospecimen):
 
 
 class BiospecimenPrivateExtended(BiospecimenPrivate):
-    age: Optional[str]
+    age: Optional[int]
     race: Optional[str]
     ethnicity: Optional[str]

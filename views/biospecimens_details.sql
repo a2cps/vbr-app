@@ -30,12 +30,12 @@ SELECT
     containers_base.location_id,
     containers_base.location_display_name,
     protocol.name as protocol_name
-FROM a2cpsdev.biospecimens_base
-INNER JOIN a2cpsdev.collections_base
+FROM a2cps.biospecimens_base
+INNER JOIN a2cps.collections_base
     ON biospecimens_base.collection_id = collections_base.collection_id
         AND (biospecimens_base.redcap_repeat_instance = collections_base.redcap_repeat_instance OR
             (biospecimens_base.redcap_repeat_instance is NULL AND collections_base.redcap_repeat_instance is NULL))
-INNER JOIN a2cpsdev.containers_base
+INNER JOIN a2cps.containers_base
     ON biospecimens_base.container_id = containers_base.container_id
-INNER JOIN a2cpsdev.protocol
+INNER JOIN a2cps.protocol
     ON biospecimens_base.protocol = protocol.protocol_id

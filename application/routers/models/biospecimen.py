@@ -48,10 +48,10 @@ class BiospecimenPrivate(Biospecimen):
     bscp_aliquot_freezer_time: Optional[str]
     bscp_phleb_by_init: Optional[str]
     bscp_procby_initials: Optional[str]
-    sex: Optional[str]
+    sex: Optional[str] = None
 
 
 class BiospecimenPrivateExtended(BiospecimenPrivate):
     age: Optional[int]
     race: Optional[str]
-    ethnicity: Optional[str]
+    ethnicity: Optional[str] = None

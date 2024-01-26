@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     tapis_service_pass: str = "p@assw0rd!"
     tapis_client_id: str = "client_id"
     tapis_client_key: str = "client_key"
+    tapis_client_secret: str = "client_secret"
     app_secret_key: str = "A>=MW;ZDF;/;Nf5>fNWnBPv@"
     app_otp_key: str = "Wx9H2K9fJzmnMKKquGca76ALdY8MaaMp"
     app_public_cname: str = "localhost"

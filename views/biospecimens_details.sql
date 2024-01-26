@@ -14,6 +14,8 @@ SELECT
     biospecimens_base.unit,
     biospecimens_base.volume,
     biospecimens_base.redcap_repeat_instance,
+    biospecimens_base.collection_site_location_id,
+    biospecimens_base.collection_site_location_display_name,
     collections_base.subject_guid,
     collections_base.subject_id,
     collections_base.bscp_time_blood_draw,
@@ -24,6 +26,7 @@ SELECT
     collections_base.bscp_procby_initials,
     collections_base.bscp_protocol_dev,
     collections_base.bscp_comments,
+    collections_base.surgery_type,
     containers_base.location_id,
     containers_base.location_display_name,
     protocol.name as protocol_name

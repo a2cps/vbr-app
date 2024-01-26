@@ -14,12 +14,17 @@ SELECT
     unit.name AS unit,
     bscp.redcap_repeat_instance,
     measurement.volume,
-    biosample.protocol
+    biosample.protocol,
+    location.local_id AS collection_site_location_id,
+    location.display_name AS collection_site_location_display_name
 FROM
     a2cps.measurement
 INNER JOIN
     a2cps.biosample
     ON biosample.biosample_id = measurement.biosample
+INNER JOIN
+    a2cps.location
+    ON location.location_id = biosample.location
 INNER JOIN
     a2cps.container
     ON container.container_id = measurement.container

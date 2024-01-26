@@ -48,14 +48,17 @@ def list_biospecimens(
     container_tracking_id: Optional[str] = None,
     location_id: Optional[str] = None,
     location_display_name: Optional[str] = None,
+    collection_site_location_id: Optional[str] = None,
+    collection_site_location_display_name: Optional[str] = None,
     protocol_name: Optional[str] = None,
     project: Optional[str] = None,
     status: Optional[str] = None,
     unit: Optional[str] = None,
     subject_id: Optional[str] = None,
-    subject_guid: Optional[str] = None,
+    #subject_guid: Optional[str] = None,
     bscp_procby_initials: Optional[str] = None,
     bscp_protocol_dev: Optional[bool] = None,
+    surgery_type: Optional[str] = None,
     client: VBR_Api = Depends(vbr_admin_client),
     common=Depends(limit_offset),
 ):
@@ -74,14 +77,17 @@ def list_biospecimens(
         container_tracking_id=container_tracking_id,
         location_id=location_id,
         location_display_name=location_display_name,
+        collection_site_location_id=collection_site_location_id,
+        collection_site_location_display_name=collection_site_location_display_name,
         protocol_name=protocol_name,
         project=project,
         status=status,
         unit=unit,
         subject_id=subject_id,
-        subject_guid=subject_guid,
+        #subject_guid=subject_guid,
         bscp_procby_initials=bscp_procby_initials,
         bscp_protocol_dev=bscp_protocol_dev,
+        surgery_type = surgery_type
     )
     rows = [
         transform(c)
@@ -111,6 +117,8 @@ def list_biospecimens_with_phi(
     container_tracking_id: Optional[str] = None,
     location_id: Optional[str] = None,
     location_display_name: Optional[str] = None,
+    collection_site_location_id: Optional[str] = None,
+    collection_site_location_display_name: Optional[str] = None,
     protocol_name: Optional[str] = None,
     project: Optional[str] = None,
     status: Optional[str] = None,
@@ -119,6 +127,9 @@ def list_biospecimens_with_phi(
     subject_guid: Optional[str] = None,
     bscp_procby_initials: Optional[str] = None,
     bscp_protocol_dev: Optional[bool] = None,
+    age: Optional[int] = None,
+    sex: Optional[str] = None,
+    surgery_type: Optional[str] = None,
     client: VBR_Api = Depends(vbr_admin_client),
     common=Depends(limit_offset),
 ):
@@ -136,6 +147,8 @@ def list_biospecimens_with_phi(
         container_tracking_id=container_tracking_id,
         location_id=location_id,
         location_display_name=location_display_name,
+        collection_site_location_id=collection_site_location_id,
+        collection_site_location_display_name=collection_site_location_display_name,
         protocol_name=protocol_name,
         project=project,
         status=status,
@@ -144,6 +157,9 @@ def list_biospecimens_with_phi(
         subject_guid=subject_guid,
         bscp_procby_initials=bscp_procby_initials,
         bscp_protocol_dev=bscp_protocol_dev,
+        age=age,
+        sex=sex,
+        surgery_type=surgery_type,
     )
     rows = [
         transform(c)

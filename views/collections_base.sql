@@ -17,7 +17,14 @@ SELECT
     bscp.bscp_protocol_dev,
     bscp.bscp_time_blood_draw,
     bscp.bscp_time_centrifuge,
-    bscp.redcap_repeat_instance 
+    bscp.redcap_repeat_instance,
+    CASE 
+        WHEN CAST(subject.source_subject_id AS INTEGER) BETWEEN 10000 AND 14999 THEN 'TKA'
+        WHEN CAST(subject.source_subject_id AS INTEGER) BETWEEN 15000 AND 19999 THEN 'Thoracic'
+        WHEN CAST(subject.source_subject_id AS INTEGER) BETWEEN 20000 AND 24999 THEN 'Thoracic'
+        WHEN CAST(subject.source_subject_id AS INTEGER) BETWEEN 25000 AND 29999 THEN 'TKA'
+        ELSE NULL
+    END AS surgery_type
 FROM
     a2cps.biosample
 INNER JOIN

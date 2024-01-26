@@ -58,6 +58,7 @@ def list_biospecimens(
     #subject_guid: Optional[str] = None,
     bscp_procby_initials: Optional[str] = None,
     bscp_protocol_dev: Optional[bool] = None,
+    surgery_type: Optional[str] = None,
     client: VBR_Api = Depends(vbr_admin_client),
     common=Depends(limit_offset),
 ):
@@ -86,6 +87,7 @@ def list_biospecimens(
         #subject_guid=subject_guid,
         bscp_procby_initials=bscp_procby_initials,
         bscp_protocol_dev=bscp_protocol_dev,
+        surgery_type = surgery_type
     )
     rows = [
         transform(c)
@@ -127,6 +129,7 @@ def list_biospecimens_with_phi(
     bscp_protocol_dev: Optional[bool] = None,
     age: Optional[int] = None,
     sex: Optional[str] = None,
+    surgery_type: Optional[str] = None,
     client: VBR_Api = Depends(vbr_admin_client),
     common=Depends(limit_offset),
 ):
@@ -156,6 +159,7 @@ def list_biospecimens_with_phi(
         bscp_protocol_dev=bscp_protocol_dev,
         age=age,
         sex=sex,
+        surgery_type=surgery_type,
     )
     rows = [
         transform(c)

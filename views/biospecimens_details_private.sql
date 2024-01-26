@@ -27,6 +27,7 @@ SELECT
     collections_base.bscp_procby_initials,
     collections_base.bscp_protocol_dev,
     collections_base.bscp_comments,
+    collections_base.surgery_type,
     containers_base.location_id,
     containers_base.location_display_name,
     subjects_private.age,
@@ -34,14 +35,14 @@ SELECT
     subjects_private.dem_race,
     subjects_private.ethnic,
     protocol.name as protocol_name
-FROM a2cps.biospecimens_base
-INNER JOIN a2cps.collections_base
+FROM a2cpsdev.biospecimens_base
+INNER JOIN a2cpsdev.collections_base
     ON biospecimens_base.collection_id = collections_base.collection_id
     AND (biospecimens_base.redcap_repeat_instance = collections_base.redcap_repeat_instance OR
             (biospecimens_base.redcap_repeat_instance is NULL AND collections_base.redcap_repeat_instance is NULL))
-INNER JOIN a2cps.containers_base
+INNER JOIN a2cpsdev.containers_base
     ON biospecimens_base.container_id = containers_base.container_id
-INNER JOIN a2cps.subjects_private
+INNER JOIN a2cpsdev.subjects_private
     ON collections_base.subject_id = subjects_private.subject_id
-INNER JOIN a2cps.protocol
+INNER JOIN a2cpsdev.protocol
     ON biospecimens_base.protocol = protocol.protocol_id

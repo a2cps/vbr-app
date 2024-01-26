@@ -34,6 +34,7 @@ class Biospecimen(BaseModel):
     location_id: Optional[str]
     location_display_name: Optional[str]
     protocol_name: Optional[str]
+    surgery_type: Optional[str]
 
     class Config:
         orm_mode = True

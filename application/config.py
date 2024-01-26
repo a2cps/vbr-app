@@ -1,7 +1,7 @@
 """Implements configuration via environment variables"""
 from functools import lru_cache
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 __all__ = ["Settings", "get_settings"]
 

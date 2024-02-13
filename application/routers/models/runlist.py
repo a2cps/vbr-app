@@ -23,4 +23,4 @@ class RunList(RunListBase):
     status_name: Optional[str]
     tracking_id: Optional[str]
     type: Optional[str]
-    location_name: Optional[str]
+    location_display_name: Optional[str]

@@ -8,9 +8,9 @@ __all__ = ["CreateRunList", "CreateRunListWithBiospecimens", "UpdateRunList"]
 class CreateRunList(BaseModel):
     runlist_type_id: str
     location_id: str
-    name: Optional[str]
-    description: Optional[str]
-    tracking_id: Optional[str]
+    name: Optional[str]  = None
+    description: Optional[str]  = None
+    tracking_id: Optional[str]  = None
 
 
 class CreateRunListWithBiospecimens(CreateRunList):
@@ -18,7 +18,7 @@ class CreateRunListWithBiospecimens(CreateRunList):
 
 
 class UpdateRunList(BaseModel):
-    location_id: Optional[str]
-    name: Optional[str]
-    description: Optional[str]
-    tracking_id: Optional[str]
+    location_id: Optional[str]  = None
+    name: Optional[str]  = None
+    description: Optional[str]  = None
+    tracking_id: Optional[str]  = None

@@ -29,6 +29,7 @@ from .routers import (
     shipments,
     subjects,
     units,
+    genomics_subjects,
 )
 from .utils import use_route_names_as_operation_ids
 from .version import get_version
@@ -104,6 +105,10 @@ tags_metadata = [
     {
         "name": "status",
         "description": "Status endpoints provide basic system health checks.",
+    },
+        {
+        "name": "genomics_subjects",
+        "description": "Generate NDA genomics_subjects form",
     },
 ]
 
@@ -226,6 +231,7 @@ app.include_router(runlist_types.router)
 app.include_router(shipments.router)
 app.include_router(subjects.router)
 app.include_router(units.router)
+app.include_router(genomics_subjects.router)
 # Admin-only routes.
 # All requires VBR_ADMIN role
 app.include_router(admin.router)

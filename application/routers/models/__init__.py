@@ -4,6 +4,7 @@ from .container import *
 from .container_type import *
 from .event import *
 from .generic import *
+from .genomics_subjects import *
 from .location import *
 from .organization import *
 from .project import *

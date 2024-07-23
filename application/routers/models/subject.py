@@ -19,12 +19,12 @@ class Subject(BaseModel):
 class SubjectPrivate(Subject):
     """Subject including biological sex at birth"""
 
-    sex: Optional[str]
+    sex: Optional[str] = None
 
 
 class SubjectPrivateExtended(SubjectPrivate):
     """Subject including biological sex and demographics"""
 
-    age: Optional[int]
-    race: Optional[str]
-    ethnicity: Optional[str]
+    age: Optional[int] = None
+    race: Optional[str] = None
+    ethnicity: Optional[str] = None

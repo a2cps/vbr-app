@@ -1,9 +1,9 @@
 attrdict
 email-validator
-fastapi
+fastapi==0.111.1
 gunicorn
 uvicorn[standard]
 tapipy==1.0.7
 git+https://github.com/a2cps/python-vbr.git@main#egg=python_vbr
 python-multipart
-pydantic-settings
+pydantic-settings==2.3.4

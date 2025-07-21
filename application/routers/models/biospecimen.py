@@ -1,9 +1,8 @@
-from datetime import date, datetime
-from enum import Enum
-from typing import Dict, List, Literal, Optional
+from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 __all__ = [
     "Biospecimen",
@@ -43,6 +42,7 @@ class Biospecimen(BaseModel):
 class BiospecimenPrivate(Biospecimen):
     creation_time: Optional[datetime]
     subject_guid: UUID
+    record_id: Optional[int]
     bscp_time_blood_draw: Optional[datetime]
     bscp_time_centrifuge: Optional[str]
     bscp_aliquot_freezer_time: Optional[str]

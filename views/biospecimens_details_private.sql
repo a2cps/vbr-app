@@ -19,6 +19,7 @@ SELECT
     biospecimens_base.collection_site_location_display_name,
     collections_base.subject_guid,
     collections_base.subject_id,
+    subjects_private.record_id,
     collections_base.bscp_time_blood_draw,
     collections_base.bscp_time_centrifuge,
     collections_base.bscp_aliquot_freezer_time,
